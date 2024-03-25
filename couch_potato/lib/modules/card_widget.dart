@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
 
-enum ParentType { branded, custom }
-
 class CardWidget extends StatefulWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
