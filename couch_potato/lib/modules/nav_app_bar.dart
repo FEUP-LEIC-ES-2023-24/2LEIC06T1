@@ -1,4 +1,4 @@
-import 'package:couch_potato/main.dart';
+import 'package:couch_potato/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -21,7 +21,7 @@ class NavAppBar extends StatelessWidget {
         size: 36,
       ),
       selectedIcon: Icon(
-        Icons.water_drop_outlined,
+        Icons.person_outline,
         color: Colors.white,
         size: 36,
       ),
@@ -83,7 +83,7 @@ class NavAppBar extends StatelessWidget {
               duration: const Duration(milliseconds: 450),
               curve: Curves.easeInOut,
             );
-            break;     
+            break;
         }
       },
       destinations: [profilePage, homePage, settingsPage],
