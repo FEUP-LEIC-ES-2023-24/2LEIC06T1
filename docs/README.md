@@ -1,5 +1,5 @@
 # COUCH POTATO Development Report
-Welcome to the documentation pages of the Uni++!
+Welcome to the documentation pages of the COUCH POTATO!
  
 
 * [Business modeling](https://github.com/LEIC-ES-2023-24/2LEIC06T1/blob/main/docs/ProductVision.md) 
