@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "558481956553",
+    "project_id": "couch-potato-9f76d",
+    "storage_bucket": "couch-potato-9f76d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:558481956553:android:4d6f56468f30f80de87718",
+        "android_client_info": {
+          "package_name": "com.example.couch_potato"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJyHmGly3xsJgrF_cY8LU6Od9lXH1_nXM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

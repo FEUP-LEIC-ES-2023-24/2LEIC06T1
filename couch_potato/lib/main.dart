@@ -3,12 +3,28 @@ import 'package:couch_potato/modules/nav_app_bar.dart';
 import 'package:couch_potato/screens/home_page.dart';
 import 'package:couch_potato/screens/profile_page.dart';
 import 'package:couch_potato/screens/settings_page.dart';
+import 'package:couch_potato/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
+import 'firebase_options.dart';
 /* import 'package:flutter/services.dart'; */
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  fetchLocation();
+
   runApp(const MyApp());
 }
 
