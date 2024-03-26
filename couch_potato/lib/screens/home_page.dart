@@ -26,7 +26,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   bool hasConnection = true;
   bool _isLoading = true;
-  bool _isFetchingMorePosts = false;
+  bool _isFetchingMorePosts = false; //TODO implement (not final)
   bool _noMorePosts = false;
 
   int offset = 0;
@@ -83,14 +83,23 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<void> fetchPosts() async {
+    if (_isFetchingMorePosts) return;
     setState(() {
-      _isLoading = true;
+      _isFetchingMorePosts = true;
     });
+
     List<Post> newPosts = await DatabaseHandler.getPosts(1);
+    if (newPosts.isEmpty) {
+      setState(() {
+        _noMorePosts = true;
+      });
+    }
     setState(() {
-      posts = newPosts;
+      _isFetchingMorePosts = false;
+      posts.addAll(newPosts);
       _isLoading = false;
     });
+    //TODO try catch
   }
 
   @override
@@ -119,7 +128,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const CreatePostPage(),
+                              builder: (context) => const CreatePostPage(), //TODO implement create post page
                             ),
                           );
                         } */

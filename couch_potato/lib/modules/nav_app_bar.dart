@@ -1,6 +1,5 @@
 import 'package:couch_potato/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 class NavAppBar extends StatelessWidget {
   final int currentIndex;
@@ -42,22 +41,18 @@ class NavAppBar extends StatelessWidget {
       label: "Home",
     );
 
-    NavigationDestination settingsPage = NavigationDestination(
-      icon: SvgPicture.asset(
-        'assets/nav_bar_icons/settings_icon.svg',
-        // ignore: deprecated_member_use
-        color: const Color.fromRGBO(68, 68, 68, 1),
-        height: 27,
-        width: 27,
+    NavigationDestination chatPage = const NavigationDestination(
+      icon: Icon(
+        Icons.message_outlined,
+        color: Color.fromRGBO(68, 68, 68, 1),
+        size: 36,
       ),
-      selectedIcon: SvgPicture.asset(
-        'assets/nav_bar_icons/settings_icon.svg',
-        // ignore: deprecated_member_use
+      selectedIcon: Icon(
+        Icons.message_outlined,
         color: Colors.white,
-        height: 27,
-        width: 27,
+        size: 36,
       ),
-      label: "Settings",
+      label: "Home",
     );
 
     return NavigationBar(
@@ -86,7 +81,7 @@ class NavAppBar extends StatelessWidget {
             break;
         }
       },
-      destinations: [profilePage, homePage, settingsPage],
+      destinations: [chatPage, homePage, profilePage],
     );
   }
 }

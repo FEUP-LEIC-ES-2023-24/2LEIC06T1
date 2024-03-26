@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:couch_potato/modules/card_widget.dart';
-import 'package:couch_potato/network/post_actions.dart';
+import 'package:couch_potato/network/post_footer.dart';
 import 'package:couch_potato/network/post_header.dart';
 import 'package:couch_potato/utils.dart';
 import 'package:flutter/material.dart';
@@ -184,7 +184,8 @@ class _SocialPostState extends State<SocialPost> with SingleTickerProviderStateM
               ),
             ),
             const SizedBox(height: 5),
-            PostActions(
+            PostFooter(
+              fullLocation: widget.fullLocation,
               isFavorite: isFavorite,
               favFunction: () {
                 //TODO Favorite post in DB

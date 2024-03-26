@@ -2,7 +2,7 @@ import 'package:couch_potato/modules/app_bar.dart';
 import 'package:couch_potato/modules/nav_app_bar.dart';
 import 'package:couch_potato/screens/home_page.dart';
 import 'package:couch_potato/screens/profile_page.dart';
-import 'package:couch_potato/screens/settings_page.dart';
+import 'package:couch_potato/screens/chat_page.dart';
 import 'package:couch_potato/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       routes: {
         '/': (context) => const PopScope(canPop: false, child: MyHome()),
-        /* '/signup': (context) => const PopScope(canPop: false, child: SignUpPage()), */
+        /* '/signup': (context) => const PopScope(canPop: false, child: SignUpPage()), */ //TODO implement signup
       },
     );
   }
@@ -68,9 +68,9 @@ class _MyHomeState extends State<MyHome> {
   final PageController _pageController = PageController(initialPage: 1);
 
   final List<Widget> _pages = [
-    const ProfilePage(),
+    const ChatPage(),
     const HomePage(),
-    const SettingsPage(),
+    const ProfilePage(),
   ];
 
   @override
