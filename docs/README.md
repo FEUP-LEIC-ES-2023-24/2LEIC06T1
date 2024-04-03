@@ -96,7 +96,3 @@ The Pysical arqchiteture diagram is composed by three nodes, which represent the
 ### Vertical prototype
 
 ![Prototype-V1](./Assets/acceptance_test.gif)
-
-## Project management
-### Spring 0
-![DashBoard-S0](./Assets/DashBoard-s0.png)
