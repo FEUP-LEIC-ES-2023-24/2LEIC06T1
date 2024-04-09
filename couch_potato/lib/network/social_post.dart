@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:couch_potato/modules/card_widget.dart';
 import 'package:couch_potato/network/post_footer.dart';
 import 'package:couch_potato/network/post_header.dart';
-import 'package:couch_potato/utils.dart';
+import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:blurhash_ffi/blurhash_ffi.dart';
 import 'package:share_plus/share_plus.dart';
