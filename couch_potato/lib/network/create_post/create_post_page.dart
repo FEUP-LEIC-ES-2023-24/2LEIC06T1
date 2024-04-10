@@ -178,7 +178,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
   void editPost() async {
     String cleanedDescription = _description.trimRight();
 
-    /* databaseHandler.editPost(); */  //TODO edit post logic
+    /* databaseHandler.editPost(); */ //TODO edit post logic
   }
 
   @override
@@ -285,7 +285,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                               });
                             },
                             icon: SvgPicture.asset(
-                              "assets/delete_icon_couch_potato.svg",
+                              "assets/delete_icon.svg",
                               // ignore: deprecated_member_use
                               color: const Color(0xFFFF6868),
                               height: 22,
@@ -349,7 +349,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
               ),
             ),
           ),
-          Platform.isIOS ? const SizedBox(height: 20) : const SizedBox(),
         ],
       ),
     );
