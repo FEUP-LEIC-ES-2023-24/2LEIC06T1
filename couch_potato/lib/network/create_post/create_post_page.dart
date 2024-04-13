@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:blurhash_ffi/blurhash.dart';
+import 'package:couch_potato/classes/post.dart';
 import 'package:couch_potato/network/create_post/category_field.dart';
 import 'package:couch_potato/network/create_post/location_field.dart';
+import 'package:couch_potato/network/database_handler.dart';
 import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -163,9 +165,23 @@ class _CreatePostPageState extends State<CreatePostPage> {
     if (mounted) {
       // Remove trailing newline characters
       String cleanedDescription = _description.trimRight();
+      String category = _category.toString().split('.').last;
+      category = category[0].toUpperCase() + category.substring(1);
+
+      Post post = Post(
+        postId: '',
+        username: 'username',
+        createdAt: DateTime.now().toString(),
+        profileImageUrl: _profileImageUrl,
+        description: cleanedDescription,
+        mediaUrl: _media != null ? _media!.path : widget.mediaUrl!, //TODO send to firebase storage and fetch url
+        mediaPlaceholder: blurHash!,
+        fullLocation: _location,
+        category: category,
+      );
 
       try {
-        /* await databaseHandler.publishPost(); */ //TODO publish post logic
+        await DatabaseHandler.publishPost(post);
         if (mounted) {
           Navigator.pop(context);
           Navigator.pop(context);
@@ -196,7 +212,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
   @override
   Widget build(BuildContext context) {
-    void popUpYesMethod() {
+    /* void popUpYesMethod() {
       HapticFeedback.selectionClick();
       debugPrint('Deleting post');
       /* databaseHandler.deletePost(widget.postId!); */ //TODO delete post
@@ -209,7 +225,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
       Navigator.of(context).pop();
     }
 
-    const String popUpText = 'Are you sure you want to delete this post?';
+    const String popUpText = 'Are you sure you want to delete this post?'; */
 
     return Scaffold(
       appBar: const MyAppBar(showBackButton: true),

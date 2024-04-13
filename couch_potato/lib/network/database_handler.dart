@@ -24,6 +24,7 @@ class DatabaseHandler {
           mediaUrl: item.data()['mediaUrl'],
           mediaPlaceholder: item.data()['mediaPlaceholder'],
           fullLocation: item.data()['fullLocation'],
+          category: item.data()['category'],
         );
 
         posts.add(post);
@@ -32,5 +33,18 @@ class DatabaseHandler {
 
     return posts;
   }
+
+  static Future<void> publishPost(Post post) async {
+    await db.collection("posts").add({
+      'username': post.username,
+      'createdAt': post.createdAt,
+      'profileImageUrl': post.profileImageUrl,
+      'description': post.description,
+      'mediaUrl': post.mediaUrl,
+      'mediaPlaceholder': post.mediaPlaceholder,
+      'fullLocation': post.fullLocation,
+      'category': post.category,
+    });
+  }   
 
 }
