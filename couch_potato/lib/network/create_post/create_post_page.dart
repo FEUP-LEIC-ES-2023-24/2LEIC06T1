@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:blurhash_ffi/blurhash.dart';
+import 'package:couch_potato/network/create_post/category_field.dart';
+import 'package:couch_potato/network/create_post/location_field.dart';
 import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +17,8 @@ import 'package:image_cropper/image_cropper.dart';
 class CreatePostPage extends StatefulWidget {
   final bool editMode;
   final String postDescription;
-  final bool isPublic;
+  final String postLocation;
+  final Category postCategory;
   final int? postId;
   final String? mediaUrl;
   final String? mediaPlaceholder;
@@ -23,7 +26,8 @@ class CreatePostPage extends StatefulWidget {
     super.key,
     this.editMode = false,
     this.postDescription = '',
-    this.isPublic = true,
+    this.postLocation = '',
+    this.postCategory = Category.furniture,
     this.postId,
     this.mediaUrl,
     this.mediaPlaceholder,
@@ -36,6 +40,8 @@ class CreatePostPage extends StatefulWidget {
 class _CreatePostPageState extends State<CreatePostPage> {
   bool visibility = true;
   String _description = '';
+  String _location = '';
+  late Category _category;
   final ImagePicker _picker = ImagePicker();
   XFile? _media;
   late String _profileImageUrl;
@@ -47,7 +53,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
     super.initState();
     setState(() {
       _description = widget.postDescription;
-      visibility = widget.isPublic;
+      _location = widget.postLocation;
+      _category = widget.postCategory;
     });
     /* fetchProfileImageUrl(); */ //TODO fetch profile image url
     /* checkFirebaseAuth(); */ //TODO Check Auth on page init
@@ -115,15 +122,21 @@ class _CreatePostPageState extends State<CreatePostPage> {
     return null;
   }
 
-  void onSubmitted(String description) {
+  void descriptionOnSubmitted(String description) {
     setState(() {
       _description = description;
     });
   }
 
-  void onToggle() {
+  void locationOnSubmitted(String location) {
     setState(() {
-      visibility = !visibility;
+      _location = location;
+    });
+  }
+
+  void categoryOnSubmitted(Category category) {
+    setState(() {
+      _category = category;
     });
   }
 
@@ -221,16 +234,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
                     ),
                   ),
                   widget.mediaUrl == null ? const SizedBox(height: 10) : const SizedBox(height: 20),
-                  Row(
+                  /* Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      /* Expanded(
-                        child: PostHeader(
-                          name: databaseHandler.getDisplayName(),
-                          footer: visibility ? 'Public' : 'Friends',
-                          profileImageUrl: databaseHandler.getProfileImageUrl,
-                        ),
-                      ), */ //TODO get current user display name and profile image url
                       if (widget.editMode)
                         TextButton(
                           onPressed: () {
@@ -247,8 +253,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
                           ),
                         ),
                     ],
-                  ),
-                  widget.mediaUrl == null ? const SizedBox(height: 15) : const SizedBox(height: 25),
+                  ), */
+                  widget.mediaUrl == null ? const SizedBox(height: 5) : const SizedBox(height: 15),
                   const Text(
                     'Description',
                     style: TextStyle(
@@ -259,8 +265,13 @@ class _CreatePostPageState extends State<CreatePostPage> {
                     ),
                   ),
                   widget.editMode
-                      ? DescriptionTextField(onSubmitted: onSubmitted, defaultText: widget.postDescription)
-                      : DescriptionTextField(onSubmitted: onSubmitted),
+                      ? DescriptionTextField(
+                          onSubmitted: descriptionOnSubmitted,
+                          defaultText: widget.postDescription,
+                        )
+                      : DescriptionTextField(
+                          onSubmitted: descriptionOnSubmitted,
+                        ),
                   widget.mediaUrl == null ? const SizedBox(height: 15) : const SizedBox(height: 35),
                   Stack(
                     clipBehavior: Clip.none,
@@ -279,6 +290,11 @@ class _CreatePostPageState extends State<CreatePostPage> {
                           top: -15,
                           right: -15,
                           child: IconButton.filled(
+                            color: Colors.white,
+                            disabledColor: Colors.white,
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(Colors.white),
+                            ),
                             onPressed: () {
                               setState(() {
                                 _media = null;
@@ -294,7 +310,23 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         ),
                     ],
                   ),
-                  widget.mediaUrl == null ? const SizedBox(height: 25) : const SizedBox(height: 45),
+                  widget.mediaUrl == null ? const SizedBox(height: 10) : const SizedBox(height: 30),
+                  widget.editMode
+                      ? LocationField(
+                          onSubmitted: locationOnSubmitted,
+                          defaultText: widget.postLocation,
+                        )
+                      : LocationField(
+                          onSubmitted: locationOnSubmitted,
+                        ),
+                  widget.editMode
+                      ? CategoryField(
+                          onSubmitted: categoryOnSubmitted,
+                          defaultCategory: widget.postCategory,
+                        )
+                      : CategoryField(
+                          onSubmitted: categoryOnSubmitted,
+                        ),
                 ],
               ),
             ),
