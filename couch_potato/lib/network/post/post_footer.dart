@@ -40,6 +40,7 @@ class _PostFooterState extends State<PostFooter> {
             ),
           ],
         ),
+        const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

@@ -2,7 +2,7 @@ import 'package:couch_potato/classes/post.dart';
 import 'package:couch_potato/modules/page_fault_screen.dart';
 import 'package:couch_potato/network/create_post/create_post_page.dart';
 import 'package:couch_potato/network/database_handler.dart';
-import 'package:couch_potato/network/social_post.dart';
+import 'package:couch_potato/network/post/social_post.dart';
 import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';

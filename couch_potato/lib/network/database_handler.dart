@@ -45,6 +45,27 @@ class DatabaseHandler {
       'fullLocation': post.fullLocation,
       'category': post.category,
     });
-  }   
+  }
 
+  static Future<Post> getSinglePost(String postId) async {
+    late Post post;
+
+    await db.collection("posts").doc(postId).get().then((event) {
+      debugPrint("Post - ${event.id}: ${event.data()}");
+
+      post = Post(
+        postId: event.id,
+        username: event.data()!['username'],
+        createdAt: event.data()!['createdAt'],
+        profileImageUrl: event.data()!['profileImageUrl'],
+        description: event.data()!['description'],
+        mediaUrl: event.data()!['mediaUrl'],
+        mediaPlaceholder: event.data()!['mediaPlaceholder'],
+        fullLocation: event.data()!['fullLocation'],
+        category: event.data()!['category'],
+      );
+    });
+
+    return post;
+  }
 }

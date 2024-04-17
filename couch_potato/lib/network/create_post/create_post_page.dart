@@ -21,7 +21,7 @@ class CreatePostPage extends StatefulWidget {
   final String postDescription;
   final String postLocation;
   final Category postCategory;
-  final int? postId;
+  final String? postId;
   final String? mediaUrl;
   final String? mediaPlaceholder;
   const CreatePostPage({
@@ -40,7 +40,6 @@ class CreatePostPage extends StatefulWidget {
 }
 
 class _CreatePostPageState extends State<CreatePostPage> {
-  bool visibility = true;
   String _description = '';
   String _location = '';
   late Category _category;
