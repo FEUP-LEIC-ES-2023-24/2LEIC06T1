@@ -10,8 +10,11 @@ class SignInPage extends StatelessWidget {
 
   Future<User?> _handleSignIn() async {
     try {
+      print("heloo???");
       final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+      print("hello");
       if (googleSignInAccount != null) {
+        print("google sign in is not nullAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         final GoogleSignInAuthentication googleSignInAuthentication =
             await googleSignInAccount.authentication;
 
@@ -24,7 +27,7 @@ class SignInPage extends StatelessWidget {
         final User? user = authResult.user;
 
         return user;
-      }
+      }else{print("google sign in is nullAAAAAAAAAAAAAAAAAAAAAAAAAA");}
     } catch (error) {
       print(error);
       return null;
