@@ -20,9 +20,7 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
         body: ValueListenableBuilder(
             valueListenable: userCredential,
             builder: (context, value, child) {
-              return (userCredential.value == '' ||
-                      userCredential.value == null)
-                  ? Center(
+              return Center(
                       child: Padding(
                         padding: const EdgeInsets.all(32.0),
                         child: Card(
@@ -35,7 +33,7 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
                               userCredential.value = await signInWithGoogle();
                               if (userCredential.value != null)
                                 print(userCredential.value.user!.email);
-                                Navigator.pushNamed(context, '/home');  //should be /home
+                                Navigator.pushNamed(context, '/home');  
                             },
                           
                             child: Row(
@@ -64,42 +62,7 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
                           )
                         )
                       ),
-                    )
-                  : Center(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            clipBehavior: Clip.antiAlias,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                    width: 1.5, color: Colors.black54)),
-                            child: Image.network(
-                                userCredential.value.user!.photoURL.toString()),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Text(userCredential.value.user!.displayName
-                              .toString()),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Text(userCredential.value.user!.email.toString()),
-                          const SizedBox(
-                            height: 30,
-                          ),
-                          ElevatedButton(
-                              onPressed: () async {
-                                bool result = await signOutFromGoogle();
-                                if (result) userCredential.value = '';
-                              },
-                              child: const Text('Logout'))
-                        ],
-                      ),
-                    );
+              );
             }));
   }
 }
