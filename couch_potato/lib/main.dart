@@ -65,7 +65,7 @@ class MyHome extends StatefulWidget {
 }
 
 class _MyHomeState extends State<MyHome> {
-  int _currentPageIndex = 1;
+  int _currentPageIndex = 3;
   final PageController _pageController = PageController(initialPage: 3);
 
   final List<Widget> _pages = [
@@ -77,6 +77,7 @@ class _MyHomeState extends State<MyHome> {
 
   @override
   Widget build(BuildContext context) {
+    print("Current Page Index: $_currentPageIndex");
     return Scaffold(
       appBar: MyAppBar(currentIndex: _currentPageIndex),
       body: PageView(
@@ -89,7 +90,7 @@ class _MyHomeState extends State<MyHome> {
         },
         children: _pages,
       ),
-      bottomNavigationBar: NavAppBar(
+      bottomNavigationBar: _currentPageIndex == 3 ? null : NavAppBar(
         currentIndex: _currentPageIndex,
         pageController: _pageController,
       ),

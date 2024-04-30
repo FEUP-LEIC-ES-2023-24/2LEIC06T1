@@ -15,28 +15,43 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Google SignIn Screen')),
+        bottomNavigationBar: null,
         body: ValueListenableBuilder(
             valueListenable: userCredential,
             builder: (context, value, child) {
               return (userCredential.value == '' ||
                       userCredential.value == null)
                   ? Center(
-                      child: Card(
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        child: IconButton(
-                          iconSize: 40,
-                          icon: Image.asset(
-                            'assets/google_icon.png',
+                      child: Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Card(
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)
                           ),
-                          onPressed: () async {
-                            userCredential.value = await signInWithGoogle();
-                            if (userCredential.value != null)
-                              print(userCredential.value.user!.email);
-                          },
-                        ),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                iconSize: 40,
+                                icon: Image.asset(
+                                  'assets/google_icon.png',
+                                ),
+                                onPressed: () async {
+                                  userCredential.value = await signInWithGoogle();
+                                  if (userCredential.value != null)
+                                    print(userCredential.value.user!.email);
+                                },
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(
+                                  'Sign in with google',
+                                  style: TextStyle(fontSize: 20.0),
+                                ),
+                              )
+                            ]
+                          )
+                        )
                       ),
                     )
                   : Center(
