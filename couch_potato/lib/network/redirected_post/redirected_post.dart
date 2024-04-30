@@ -32,8 +32,6 @@ class _RedirectedPostState extends State<RedirectedPost> {
   Post? post;
   Logistics _logistics = Logistics.user;
 
-  final ScrollController _scrollController = ScrollController();
-
   @override
   void initState() {
     fetchPost();
@@ -78,7 +76,6 @@ class _RedirectedPostState extends State<RedirectedPost> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 15),
                     child: SingleChildScrollView(
-                      controller: _scrollController,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -142,18 +139,26 @@ class _RedirectedPostState extends State<RedirectedPost> {
                                 await file.writeAsBytes(bytes);
 
                                 xFile = XFile(file.path);
-                                await Share.shareXFiles([xFile], text: "${post!.username} posted '${post!.description}'");
+                                await Share.shareXFiles([xFile],
+                                    text: "${post!.username} posted '${post!.description}'");
                               } catch (e) {
                                 debugPrint('Error sharing the post: $e');
                               }
                             },
                           ),
-                          const SizedBox(height: 20),
-                          LogisticsOptions(radioCallback: (Logistics value) {
-                            setState(() {
-                              _logistics = value;
-                            });
-                          })
+                          const SizedBox(height: 15),
+                          SizedBox(
+                            height: 100,
+                            child: Transform.translate(
+                              offset: const Offset(-10, 0),
+                              child: LogisticsOptions(radioCallback: (Logistics value) {
+                                setState(() {
+                                  _logistics = value;
+                                });
+                              }),
+                            ),
+                          ),
+                          const SizedBox(height: 86),
                         ],
                       ),
                     ),
