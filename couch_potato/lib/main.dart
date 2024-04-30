@@ -72,7 +72,6 @@ class _MyHomeState extends State<MyHome> {
     const ChatPage(),
     const HomePage(),
     const ProfilePage(),
-    const GoogleSignInScreen(),
   ];
 
   @override
