@@ -10,7 +10,8 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Container();
+    /*return Center(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -45,6 +46,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ],
       ),
     );
+    */
   }
 }
 
