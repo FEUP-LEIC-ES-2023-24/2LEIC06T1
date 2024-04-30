@@ -3,7 +3,8 @@ import 'package:couch_potato/modules/nav_app_bar.dart';
 import 'package:couch_potato/screens/home_page.dart';
 import 'package:couch_potato/screens/profile_page.dart';
 import 'package:couch_potato/screens/chat_page.dart';
-import 'package:couch_potato/utils.dart';
+import 'package:couch_potato/screens/login_page.dart';
+import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
@@ -49,8 +50,8 @@ class MyApp extends StatelessWidget {
       ),
       navigatorKey: navigatorKey,
       routes: {
-        '/': (context) => const PopScope(canPop: false, child: MyHome()),
-        /* '/signup': (context) => const PopScope(canPop: false, child: SignUpPage()), */ //TODO implement signup
+        '/': (context) => const PopScope(canPop: false, child: GoogleSignInScreen()),
+        '/home': (context) => const PopScope(canPop: false, child: MyHome()),
       },
     );
   }
@@ -75,6 +76,7 @@ class _MyHomeState extends State<MyHome> {
 
   @override
   Widget build(BuildContext context) {
+    print("Current Page Index: $_currentPageIndex");
     return Scaffold(
       appBar: MyAppBar(currentIndex: _currentPageIndex),
       body: PageView(
@@ -87,7 +89,7 @@ class _MyHomeState extends State<MyHome> {
         },
         children: _pages,
       ),
-      bottomNavigationBar: NavAppBar(
+      bottomNavigationBar: _currentPageIndex == 3 ? null : NavAppBar(
         currentIndex: _currentPageIndex,
         pageController: _pageController,
       ),
