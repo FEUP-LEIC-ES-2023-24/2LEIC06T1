@@ -4,7 +4,6 @@ import 'package:couch_potato/screens/home_page.dart';
 import 'package:couch_potato/screens/profile_page.dart';
 import 'package:couch_potato/screens/chat_page.dart';
 import 'package:couch_potato/screens/login_page.dart';
-import 'package:couch_potato/utils.dart';
 import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
