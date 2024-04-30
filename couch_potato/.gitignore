@@ -52,7 +52,5 @@ analysis_options.yaml
 
 #Android files
 android/app/src/debug/*
-android/app/src/main/kotlin/*
-android/app/src/main/res/*
 android/app/src/profile/*
 android/gradle/*
