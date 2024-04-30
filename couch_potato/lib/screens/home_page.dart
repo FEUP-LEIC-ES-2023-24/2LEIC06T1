@@ -1,8 +1,9 @@
 import 'package:couch_potato/classes/post.dart';
 import 'package:couch_potato/modules/page_fault_screen.dart';
-import 'package:couch_potato/network/datatbase_handler.dart';
-import 'package:couch_potato/network/social_post.dart';
-import 'package:couch_potato/utils.dart';
+import 'package:couch_potato/network/create_post/create_post_page.dart';
+import 'package:couch_potato/network/database_handler.dart';
+import 'package:couch_potato/network/post/social_post.dart';
+import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -124,14 +125,14 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   scale: 0.9,
                   child: FloatingActionButton(
                     onPressed: () async {
-                      /* if (await hasInternetConnection() && mounted) {
+                      if (await hasInternetConnection() && mounted) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const CreatePostPage(), //TODO implement create post page
+                              builder: (context) => const CreatePostPage()
                             ),
                           );
-                        } */
+                        }
                       HapticFeedback.selectionClick();
                     },
                     foregroundColor: Colors.white,

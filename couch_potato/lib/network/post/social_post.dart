@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'package:couch_potato/modules/card_widget.dart';
-import 'package:couch_potato/network/post_footer.dart';
-import 'package:couch_potato/network/post_header.dart';
-import 'package:couch_potato/utils.dart';
+import 'package:couch_potato/network/post/post_footer.dart';
+import 'package:couch_potato/network/post/post_header.dart';
+import 'package:couch_potato/network/redirected_post/redirected_post.dart';
+import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:blurhash_ffi/blurhash_ffi.dart';
 import 'package:share_plus/share_plus.dart';
@@ -133,84 +134,93 @@ class _SocialPostState extends State<SocialPost> with SingleTickerProviderStateM
     return AnimatedOpacity(
       opacity: opacity,
       duration: const Duration(milliseconds: 300),
-      child: CardWidget(
-        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: PostHeader(
-                    name: widget.name,
-                    footer: postHeaderFooter,
-                    profileImageUrl: widget.profileImageUrl,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => RedirectedPost(postId: widget.postId),
+            ),
+          );
+        },
+        child: CardWidget(
+          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: PostHeader(
+                      name: widget.name,
+                      footer: postHeaderFooter,
+                      profileImageUrl: widget.profileImageUrl,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 0),
-              child: Text(
-                widget.text,
-                style: const TextStyle(
-                  color: Color(0xFF555555),
-                  fontSize: 14,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w500,
-                ),
+                ],
               ),
-            ),
-            const SizedBox(height: 15),
-            AspectRatio(
-              aspectRatio: 1 / 1,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: InteractiveViewer(
-                  transformationController: _transformationController,
-                  boundaryMargin: const EdgeInsets.all(20.0),
-                  minScale: 1,
-                  maxScale: 1.5,
-                  constrained: true,
-                  onInteractionStart: _onInteractionStart,
-                  onInteractionEnd: _onInteractionEnd,
-                  child: BlurhashFfi(
-                    key: ValueKey(widget.imageUrl),
-                    hash: widget.mediaPlaceholder,
-                    image: widget.imageUrl,
-                    imageFit: BoxFit.cover,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                child: Text(
+                  widget.text,
+                  style: const TextStyle(
+                    color: Color(0xFF555555),
+                    fontSize: 14,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 5),
-            PostFooter(
-              fullLocation: widget.fullLocation,
-              isFavorite: isFavorite,
-              favFunction: () {
-                //TODO Favorite post in DB
-                setState(() {
-                  isFavorite = !isFavorite;
-                });
-              },
-              sharePostFunction: () async {
-                try {
-                  XFile? xFile;
-                  var response = await http.get(Uri.parse(widget.imageUrl));
+              const SizedBox(height: 15),
+              AspectRatio(
+                aspectRatio: 1 / 1,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: InteractiveViewer(
+                    transformationController: _transformationController,
+                    boundaryMargin: const EdgeInsets.all(20.0),
+                    minScale: 1,
+                    maxScale: 1.5,
+                    constrained: true,
+                    onInteractionStart: _onInteractionStart,
+                    onInteractionEnd: _onInteractionEnd,
+                    child: BlurhashFfi(
+                      key: ValueKey(widget.imageUrl),
+                      hash: widget.mediaPlaceholder,
+                      image: widget.imageUrl,
+                      imageFit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 5),
+              PostFooter(
+                fullLocation: widget.fullLocation,
+                isFavorite: isFavorite,
+                favFunction: () {
+                  //TODO Favorite post in DB
+                  setState(() {
+                    isFavorite = !isFavorite;
+                  });
+                },
+                sharePostFunction: () async {
+                  try {
+                    XFile? xFile;
+                    var response = await http.get(Uri.parse(widget.imageUrl));
 
-                  final bytes = response.bodyBytes;
-                  final tempDir = await getTemporaryDirectory();
-                  final file = File('${tempDir.path}/image.jpg');
-                  await file.writeAsBytes(bytes);
-                  
-                  xFile = XFile(file.path);
-                  await Share.shareXFiles([xFile], text: "${widget.name} posted '${widget.text}'");
-                } catch (e) {
-                  debugPrint('Error sharing the post: $e');
-                }
-              },
-            ),
-          ],
+                    final bytes = response.bodyBytes;
+                    final tempDir = await getTemporaryDirectory();
+                    final file = File('${tempDir.path}/image.jpg');
+                    await file.writeAsBytes(bytes);
+
+                    xFile = XFile(file.path);
+                    await Share.shareXFiles([xFile], text: "${widget.name} posted '${widget.text}'");
+                  } catch (e) {
+                    debugPrint('Error sharing the post: $e');
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

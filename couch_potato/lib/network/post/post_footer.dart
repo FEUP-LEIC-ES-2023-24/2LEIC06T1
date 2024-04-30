@@ -1,4 +1,4 @@
-import 'package:couch_potato/utils.dart';
+import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -40,6 +40,7 @@ class _PostFooterState extends State<PostFooter> {
             ),
           ],
         ),
+        const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
