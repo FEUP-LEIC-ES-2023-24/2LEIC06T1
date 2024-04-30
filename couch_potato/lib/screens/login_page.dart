@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/material.dart';
 
 class GoogleSignInScreen extends StatefulWidget {
   const GoogleSignInScreen({Key? key}) : super(key: key);
@@ -25,31 +26,41 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(32.0),
                         child: Card(
-                          elevation: 5,
+                          elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)
                           ),
-                          child: Row(
-                            children: [
-                              IconButton(
-                                iconSize: 40,
-                                icon: Image.asset(
-                                  'assets/google_icon.png',
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              userCredential.value = await signInWithGoogle();
+                              if (userCredential.value != null)
+                                print(userCredential.value.user!.email);
+                                Navigator.pushNamed(context, '/home');  //should be /home
+                            },
+                          
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  iconSize: 40,
+                                  icon: Image.asset(
+                                    'assets/google_icon.png',
+                                  ),
+                                  onPressed: () async {
+                                    userCredential.value = await signInWithGoogle();
+                                    if (userCredential.value != null){
+                                      print(userCredential.value.user!.email);
+                                    }
+                                  },
                                 ),
-                                onPressed: () async {
-                                  userCredential.value = await signInWithGoogle();
-                                  if (userCredential.value != null)
-                                    print(userCredential.value.user!.email);
-                                },
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Text(
-                                  'Sign in with google',
-                                  style: TextStyle(fontSize: 20.0),
-                                ),
-                              )
-                            ]
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Text(
+                                    'Sign in with google',
+                                    style: TextStyle(fontSize: 20.0),
+                                  ),
+                                )
+                              ]
+                            )
                           )
                         )
                       ),

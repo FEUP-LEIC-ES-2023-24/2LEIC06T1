@@ -50,8 +50,8 @@ class MyApp extends StatelessWidget {
       ),
       navigatorKey: navigatorKey,
       routes: {
-        '/': (context) => const PopScope(canPop: false, child: MyHome()),
-        /* '/signup': (context) => const PopScope(canPop: false, child: SignUpPage()), */ //TODO implement signup
+        '/': (context) => const PopScope(canPop: false, child: GoogleSignInScreen()),
+        '/home': (context) => const PopScope(canPop: false, child: MyHome()),
       },
     );
   }
@@ -65,8 +65,8 @@ class MyHome extends StatefulWidget {
 }
 
 class _MyHomeState extends State<MyHome> {
-  int _currentPageIndex = 3;
-  final PageController _pageController = PageController(initialPage: 3);
+  int _currentPageIndex = 1;
+  final PageController _pageController = PageController(initialPage: 1);
 
   final List<Widget> _pages = [
     const ChatPage(),
