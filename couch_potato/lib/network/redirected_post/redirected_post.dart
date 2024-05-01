@@ -29,10 +29,9 @@ class _RedirectedPostState extends State<RedirectedPost> {
   double opacity = 0.0;
 
   bool isFavorite = false;
-  late Post post;
-  Logistics _logistics = Logistics.user;
 
-  final ScrollController _scrollController = ScrollController();
+  Post? post;
+  Logistics _logistics = Logistics.user;
 
   @override
   void initState() {
@@ -57,11 +56,10 @@ class _RedirectedPostState extends State<RedirectedPost> {
 
   @override
   Widget build(BuildContext context) {
-    String postHeaderFooter = '${timeDelta(post.createdAt)} - $location';
 
     return Scaffold(
       appBar: const MyAppBar(title: 'Post', showBackButton: true),
-      body: _isLoading
+      body: _isLoading || post == null
           ? Center(
               child: SizedBox(
                 height: MediaQuery.of(context).size.height * 0.7,
@@ -80,7 +78,6 @@ class _RedirectedPostState extends State<RedirectedPost> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 27, vertical: 15),
                     child: SingleChildScrollView(
-                      controller: _scrollController,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -88,19 +85,19 @@ class _RedirectedPostState extends State<RedirectedPost> {
                             children: [
                               Expanded(
                                 child: PostHeader(
-                                  name: post.username,
-                                  footer: postHeaderFooter,
-                                  profileImageUrl: post.profileImageUrl,
+                                  name: post!.username,
+                                  footer: '${timeDelta(post!.createdAt)} - $location',
+                                  profileImageUrl: post!.profileImageUrl,
                                 ),
                               ),
                             ],
                           ),
-                          if (post.description.isNotEmpty) const SizedBox(height: 15),
-                          if (post.description.isNotEmpty)
+                          if (post!.description.isNotEmpty) const SizedBox(height: 15),
+                          if (post!.description.isNotEmpty)
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 0),
                               child: Text(
-                                post.description,
+                                post!.description,
                                 style: const TextStyle(
                                   color: Color(0xFF555555),
                                   fontSize: 14,
@@ -109,23 +106,23 @@ class _RedirectedPostState extends State<RedirectedPost> {
                                 ),
                               ),
                             ),
-                          post.mediaUrl.isNotEmpty ? const SizedBox(height: 20) : const SizedBox(height: 10),
-                          if (post.mediaUrl.isNotEmpty && post.mediaPlaceholder.isNotEmpty)
+                          post!.mediaUrl.isNotEmpty ? const SizedBox(height: 20) : const SizedBox(height: 10),
+                          if (post!.mediaUrl.isNotEmpty && post!.mediaPlaceholder.isNotEmpty)
                             AspectRatio(
                               aspectRatio: 1 / 1,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: BlurhashFfi(
-                                  key: ValueKey(post.mediaUrl),
-                                  hash: post.mediaPlaceholder,
-                                  image: post.mediaUrl,
+                                  key: ValueKey(post!.mediaUrl),
+                                  hash: post!.mediaPlaceholder,
+                                  image: post!.mediaUrl,
                                   imageFit: BoxFit.cover,
                                 ),
                               ),
                             ),
-                          if (post.mediaUrl.isNotEmpty) const SizedBox(height: 15),
+                          if (post!.mediaUrl.isNotEmpty) const SizedBox(height: 15),
                           PostFooter(
-                            fullLocation: post.fullLocation,
+                            fullLocation: post!.fullLocation,
                             isFavorite: isFavorite,
                             favFunction: () {
                               //TODO Favorite post in DB
@@ -136,7 +133,7 @@ class _RedirectedPostState extends State<RedirectedPost> {
                             sharePostFunction: () async {
                               try {
                                 XFile? xFile;
-                                var response = await http.get(Uri.parse(post.mediaUrl));
+                                var response = await http.get(Uri.parse(post!.mediaUrl));
 
                                 final bytes = response.bodyBytes;
                                 final tempDir = await getTemporaryDirectory();
@@ -144,18 +141,26 @@ class _RedirectedPostState extends State<RedirectedPost> {
                                 await file.writeAsBytes(bytes);
 
                                 xFile = XFile(file.path);
-                                await Share.shareXFiles([xFile], text: "${post.username} posted '${post.description}'");
+                                await Share.shareXFiles([xFile],
+                                    text: "${post!.username} posted '${post!.description}'");
                               } catch (e) {
                                 debugPrint('Error sharing the post: $e');
                               }
                             },
                           ),
-                          const SizedBox(height: 20),
-                          LogisticsOptions(radioCallback: (Logistics value) {
-                            setState(() {
-                              _logistics = value;
-                            });
-                          })
+                          const SizedBox(height: 15),
+                          SizedBox(
+                            height: 100,
+                            child: Transform.translate(
+                              offset: const Offset(-10, 0),
+                              child: LogisticsOptions(radioCallback: (Logistics value) {
+                                setState(() {
+                                  _logistics = value;
+                                });
+                              }),
+                            ),
+                          ),
+                          const SizedBox(height: 86),
                         ],
                       ),
                     ),
