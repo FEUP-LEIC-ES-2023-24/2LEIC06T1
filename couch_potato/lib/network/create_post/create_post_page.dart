@@ -58,7 +58,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
       _category = widget.postCategory;
     });
     /* fetchProfileImageUrl(); */ //TODO fetch profile image url
-    /* checkFirebaseAuth(); */ //TODO Check Auth on page init
+    DatabaseHandler.checkFirebaseAuth();
   }
 
   Future getImageFromGallery() async {
@@ -155,8 +155,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
     }
 
     String? blurHash;
+    String? mediaUrlNullable;
     if (_media != null) {
       blurHash = await generateBlurHash();
+      mediaUrlNullable = await DatabaseHandler.uploadImageToFirestore(_media!, 'posts_media');
     }
     if (widget.mediaPlaceholder != null) {
       blurHash = widget.mediaPlaceholder;
@@ -173,7 +175,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         createdAt: DateTime.now().toString(),
         profileImageUrl: _profileImageUrl,
         description: cleanedDescription,
-        mediaUrl: _media != null ? _media!.path : widget.mediaUrl!, //TODO send to firebase storage and fetch url
+        mediaUrl: mediaUrlNullable!,
         mediaPlaceholder: blurHash!,
         fullLocation: _location,
         category: category,
@@ -185,7 +187,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
           Navigator.pop(context);
           Navigator.pop(context);
         }
-      } catch (e, stack) {
+      } catch (e) {
         if (mounted && e is ShowableError) {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(

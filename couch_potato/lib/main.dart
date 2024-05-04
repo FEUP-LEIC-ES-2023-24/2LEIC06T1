@@ -76,7 +76,7 @@ class _MyHomeState extends State<MyHome> {
 
   @override
   Widget build(BuildContext context) {
-    print("Current Page Index: $_currentPageIndex");
+    debugPrint("Current Page Index: $_currentPageIndex");
     return Scaffold(
       appBar: MyAppBar(currentIndex: _currentPageIndex),
       body: PageView(
