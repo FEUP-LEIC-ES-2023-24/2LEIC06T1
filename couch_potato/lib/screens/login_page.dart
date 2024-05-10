@@ -33,7 +33,9 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
                               userCredential.value = await signInWithGoogle();
                               if (userCredential.value != null)
                                 print(userCredential.value.user!.email);
-                                Navigator.pushNamed(context, '/home');  
+                                print("popo");
+                                print(FirebaseAuth.instance.currentUser);
+                                Navigator.pushNamed(context, '/home', arguments: {FirebaseAuth.instance.currentUser});  
                             },
                           
                             child: Row(
