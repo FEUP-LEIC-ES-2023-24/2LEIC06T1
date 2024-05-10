@@ -63,7 +63,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildTextComposer() {
     return IconTheme(
-      data: IconThemeData(color: Color(0xFF00FF00)),
+      data: IconThemeData(color: Color(0xFFF7981D)),
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 8.0),
         child: Row(
