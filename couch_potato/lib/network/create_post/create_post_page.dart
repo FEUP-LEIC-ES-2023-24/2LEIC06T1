@@ -133,6 +133,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     setState(() {
       _location = location;
     });
+    debugPrint('Location: $_location');
   }
 
   void categoryOnSubmitted(Category category) {

@@ -1,6 +1,5 @@
 import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class LocationField extends StatefulWidget {
   final Function onSubmitted;
