@@ -63,7 +63,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     _username = user?.displayName ?? 'Username';
     _profileImageUrl = user?.photoURL ?? '';
 
-    /* checkFirebaseAuth(); */ //TODO Check Auth on page init
+    DatabaseHandler.checkFirebaseAuth();
   }
 
   Future getImageFromGallery() async {
@@ -138,7 +138,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
     setState(() {
       _location = location;
     });
-    debugPrint('Location: $_location');
   }
 
   void categoryOnSubmitted(Category category) {

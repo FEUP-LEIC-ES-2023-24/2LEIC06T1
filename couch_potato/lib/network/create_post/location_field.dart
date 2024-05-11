@@ -60,13 +60,18 @@ class _LocationFieldState extends State<LocationField> {
             ),
             child: TextField(
               controller: _controller,
+              onChanged: (value) {
+                setState(() {
+                  _locationTemp = value;
+                });
+              },
               onTapOutside: (PointerDownEvent event) {
                 FocusScope.of(context).unfocus();
                 widget.onSubmitted(_locationTemp);
               },
-              onSubmitted: (String description) {
+              onSubmitted: (String location) {
                 FocusScope.of(context).unfocus();
-                widget.onSubmitted(description);
+                widget.onSubmitted(location);
               },
               onEditingComplete: () {
                 widget.onSubmitted(_locationTemp);

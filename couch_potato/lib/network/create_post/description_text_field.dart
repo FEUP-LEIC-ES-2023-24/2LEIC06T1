@@ -77,13 +77,8 @@ class _DescriptionTextFieldState extends State<DescriptionTextField> {
             widget.onSubmitted(description);
           },
           onChanged: (value) {
-            value = value.replaceAll(RegExp(r'\n{3,}'), '\n\n'); // Don't allow 3 consecutive line breaks
+            value = value.replaceAll(RegExp(r'\n{3,}'), '\n\n');
 
-            // Debug: Print each character with its escape sequence
-            debugPrint(
-                'Characters: ${value.codeUnits.map((e) => '\\u${e.toRadixString(16).padLeft(4, '0')}').join(' ')}');
-
-            debugPrint('Paragraphs: ${_countParagraphs(value)}');
             // Check for leading newlines and total length
             if (value.startsWith('\n') || value.length > 300 || _countParagraphs(value) > 5) {
               // Revert to the last valid state without causing infinite loop
