@@ -59,4 +59,5 @@ class DefaultFirebaseOptions {
     projectId: 'couch-potato-9f76d',
     storageBucket: 'couch-potato-9f76d.appspot.com',
   );
+
 }

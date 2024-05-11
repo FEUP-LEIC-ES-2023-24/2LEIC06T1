@@ -5,6 +5,7 @@ import 'package:couch_potato/network/create_post/category_field.dart';
 import 'package:couch_potato/network/create_post/location_field.dart';
 import 'package:couch_potato/network/database_handler.dart';
 import 'package:couch_potato/utils/utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -45,9 +46,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
   late Category _category;
   final ImagePicker _picker = ImagePicker();
   XFile? _media;
-  late String _profileImageUrl;
 
-  late ImageProvider imageProvider;
+  String _profileImageUrl = '';
+  String _username = 'Username';
 
   @override
   void initState() {
@@ -57,7 +58,11 @@ class _CreatePostPageState extends State<CreatePostPage> {
       _location = widget.postLocation;
       _category = widget.postCategory;
     });
-    /* fetchProfileImageUrl(); */ //TODO fetch profile image url
+
+    User? user = FirebaseAuth.instance.currentUser;
+    _username = user?.displayName ?? 'Username';
+    _profileImageUrl = user?.photoURL ?? '';
+
     /* checkFirebaseAuth(); */ //TODO Check Auth on page init
   }
 
@@ -169,7 +174,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
       Post post = Post(
         postId: '',
-        username: 'username',
+        username: _username,
         createdAt: DateTime.now().toString(),
         profileImageUrl: _profileImageUrl,
         description: cleanedDescription,
@@ -185,7 +190,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
           Navigator.pop(context);
           Navigator.pop(context);
         }
-      } catch (e, stack) {
+      } catch (e) {
         if (mounted && e is ShowableError) {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
@@ -372,10 +377,27 @@ class _CreatePostPageState extends State<CreatePostPage> {
               ),
               onPressed: () async {
                 HapticFeedback.selectionClick();
-                if (_media == null && _description.isEmpty && widget.mediaUrl == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    ErrorSnackbar(errorText: 'Add text or an image to your post', context: context),
-                  );
+                if (_media == null && widget.mediaUrl == null ||
+                    _description.isEmpty ||
+                    _location.isEmpty ||
+                    _category.toString().isEmpty) {
+                  if (_media == null && widget.mediaUrl == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      ErrorSnackbar(errorText: 'Add an image to your post', context: context),
+                    );
+                  } else if (_description.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      ErrorSnackbar(errorText: 'Add a description to your post', context: context),
+                    );
+                  } else if (_location.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      ErrorSnackbar(errorText: 'Add a location to your post', context: context),
+                    );
+                  } else if (_category.toString().isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      ErrorSnackbar(errorText: 'Add a category to your post', context: context),
+                    );
+                  }
                   return;
                 }
                 if (widget.editMode) {
