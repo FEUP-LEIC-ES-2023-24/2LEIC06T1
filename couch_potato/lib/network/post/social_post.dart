@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:couch_potato/modules/card_widget.dart';
+import 'package:couch_potato/network/database_handler.dart';
 import 'package:couch_potato/network/post/post_footer.dart';
 import 'package:couch_potato/network/post/post_header.dart';
 import 'package:couch_potato/network/redirected_post/redirected_post.dart';
@@ -9,6 +10,7 @@ import 'package:blurhash_ffi/blurhash_ffi.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SocialPost extends StatefulWidget {
   final String profileImageUrl;
@@ -67,13 +69,16 @@ class _SocialPostState extends State<SocialPost> with SingleTickerProviderStateM
 
   //TODO check if user favorited the post
   Future<void> fetchIsFavorite() async {
-    /* final SocialNetworkHandler socialNetworkHandler = Provider.of<SocialNetworkHandler>(context, listen: false);
-    var value = await socialNetworkHandler.isPostLiked(widget.postId);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> favorites =  prefs.getStringList('favorites') ?? [];
+
+    bool value = favorites.contains(widget.postId);
+
     if (context.mounted) {
       setState(() {
         isFavorite = value;
       });
-    } */
+    }
   }
 
   @override
@@ -196,8 +201,10 @@ class _SocialPostState extends State<SocialPost> with SingleTickerProviderStateM
               PostFooter(
                 fullLocation: widget.fullLocation,
                 isFavorite: isFavorite,
-                favFunction: () {
+                favFunction: () async {
                   //TODO Favorite post in DB
+                  await DatabaseHandler.addFavorite(widget.postId);
+
                   setState(() {
                     isFavorite = !isFavorite;
                   });

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DatabaseHandler {
   static final db = FirebaseFirestore.instance;
@@ -117,5 +118,40 @@ class DatabaseHandler {
     });
 
     return post;
+  }
+
+  static Future<void> fetchAndSaveFavorites() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      debugPrint('User not signed in');
+      return;
+    }
+
+    CollectionReference favorites = db.collection('favorites');
+
+    List<String> favoritePostIds = [];
+
+    QuerySnapshot querySnapshot = await favorites.where('userId', isEqualTo: currentUser.uid).get();
+
+    for (var doc in querySnapshot.docs) {
+      favoritePostIds.add(doc['postId']);
+    }
+
+    debugPrint('Favorites List: $favoritePostIds');
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('favorites', favoritePostIds);
+
+    debugPrint('Favorites saved to Shared Preferences: ${prefs.getStringList('favorites')}');
+  }
+
+  static Future<void> addFavorite(String postId) async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    await db.collection('favorites').add({
+      'userId': currentUser.uid,
+      'postId': postId,
+    });
   }
 }

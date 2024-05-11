@@ -122,8 +122,10 @@ class _RedirectedPostState extends State<RedirectedPost> {
                           PostFooter(
                             fullLocation: post!.fullLocation,
                             isFavorite: isFavorite,
-                            favFunction: () {
+                            favFunction: () async {
                               //TODO Favorite post in DB
+                              await DatabaseHandler.addFavorite(widget.postId);
+
                               setState(() {
                                 isFavorite = !isFavorite;
                               });
