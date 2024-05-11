@@ -3,6 +3,7 @@ import 'package:couch_potato/modules/nav_app_bar.dart';
 import 'package:couch_potato/screens/home_page.dart';
 import 'package:couch_potato/screens/profile_page.dart';
 import 'package:couch_potato/screens/chat_page.dart';
+import 'package:couch_potato/screens/chatlist_page.dart';
 import 'package:couch_potato/screens/login_page.dart';
 import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +53,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const PopScope(canPop: false, child: GoogleSignInScreen()),
         '/home': (context) => const PopScope(canPop: false, child: MyHome()),
+        '/chat': (context) => const PopScope(canPop: false, child: ChatPage()),
       },
     );
   }
@@ -69,7 +71,8 @@ class _MyHomeState extends State<MyHome> {
   final PageController _pageController = PageController(initialPage: 1);
 
   final List<Widget> _pages = [
-    const ChatPage(),
+    //const ChatPage(),
+    const ChatListPage(),
     const HomePage(),
     const ProfilePage(),
   ];

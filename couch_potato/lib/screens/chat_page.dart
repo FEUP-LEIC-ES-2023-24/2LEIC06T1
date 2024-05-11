@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:couch_potato/network/database_handler.dart';
 import 'package:couch_potato/classes/chatMessage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:couch_potato/classes/chat.dart';
+
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -13,44 +15,27 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
 
-  // @override
-  // Widget build(BuildContext context) {
-
-    // User? user = FirebaseAuth.instance.currentUser;
-
-    // String displayName = "null";
-
-    // print("user:\n\n\n\n");
-    // print(user);
-
-    // if(user != null){
-    //   displayName = user!.displayName ?? 'Unknown User';
-    // }
-
   final TextEditingController _controller = TextEditingController();
   final List<ChatMessage> _messages = [];
+
+  Chat? chat;
+
 
   void _handleSubmit(String text) {
     _controller.clear();
     
     String senderId = "";
-    String senderName = "";
-    String senderPhoto = "";
     User? user = FirebaseAuth.instance.currentUser;
     if(user != null){
       senderId = user.uid;
-      senderName = user.displayName!;
-      senderPhoto = user.photoURL!;
     }
+
+    String chatId = "";
+    if(chat != null) chatId = chat!.id;
     
     ChatMessage message = ChatMessage(
-      // Mocking the sender for now
+      chatId: chatId,
       senderId: senderId,
-      senderName: senderName,
-      senderPhoto: senderPhoto,
-      receiverId: "ze",
-      receiverName: senderName,
-      receiverPhoto: senderPhoto,
       text: text,
       timestamp: Timestamp.now()
     );
@@ -62,23 +47,48 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
-            reverse: true,
-            itemCount: _messages.length,
-            itemBuilder: (context, index) {
-              return textBubble(chatMessage: _messages[index]);
-            },
+
+    chat ??= ModalRoute.of(context)!.settings.arguments as Chat?;
+    String username = "no username";
+
+    if(chat?.userName != null) username = chat!.userName;
+
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // Navigate back when the back arrow is pressed
+          },
+        ),
+        title: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: NetworkImage(chat?.userPhoto ?? ''),
+            ),
+            SizedBox(width: 8), // Add spacing between the image and the title
+            Text(username),
+          ],
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              reverse: true,
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                return textBubble(chatMessage: _messages[index]);
+              },
+            ),
           ),
-        ),
-        Divider(height: 1.0),
-        Container(
-          decoration: BoxDecoration(color: Theme.of(context).cardColor),
-          child: _buildTextComposer(),
-        ),
-      ],
+          Divider(height: 1.0),
+          Container(
+            decoration: BoxDecoration(color: Theme.of(context).cardColor),
+            child: _buildTextComposer(),
+          ),
+        ],
+      )
     );
   }
 
@@ -125,7 +135,7 @@ class textBubble extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Container(
             margin: EdgeInsets.only(right: 16.0),
@@ -136,7 +146,7 @@ class textBubble extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(chatMessage.senderName),
+              Text(chatMessage.senderId == FirebaseAuth.instance.currentUser!.uid ? "me" : "you"),
               Container(
                 margin: EdgeInsets.only(top: 5.0),
                 child: Text(chatMessage.text),
