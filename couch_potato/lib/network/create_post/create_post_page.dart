@@ -63,7 +63,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     _username = user?.displayName ?? 'Username';
     _profileImageUrl = user?.photoURL ?? '';
 
-    /* checkFirebaseAuth(); */ //TODO Check Auth on page init
+    DatabaseHandler.checkFirebaseAuth();
   }
 
   Future getImageFromGallery() async {
@@ -160,8 +160,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
     }
 
     String? blurHash;
+    String? mediaUrlNullable;
     if (_media != null) {
       blurHash = await generateBlurHash();
+      mediaUrlNullable = await DatabaseHandler.uploadImageToFirestore(_media!, 'posts_media');
     }
     if (widget.mediaPlaceholder != null) {
       blurHash = widget.mediaPlaceholder;
@@ -178,7 +180,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         createdAt: DateTime.now().toString(),
         profileImageUrl: _profileImageUrl,
         description: cleanedDescription,
-        mediaUrl: _media != null ? _media!.path : widget.mediaUrl!, //TODO send to firebase storage and fetch url
+        mediaUrl: mediaUrlNullable!,
         mediaPlaceholder: blurHash!,
         fullLocation: _location,
         category: category,

@@ -1,9 +1,40 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couch_potato/classes/post.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:image_picker/image_picker.dart';
 
 class DatabaseHandler {
   static final db = FirebaseFirestore.instance;
+
+  static final storageRef = FirebaseStorage.instance.ref();
+
+  static Future<void> checkFirebaseAuth() async {
+    debugPrint("Checking Firebase Auth: ${FirebaseAuth.instance.currentUser}");
+    if (FirebaseAuth.instance.currentUser == null) {
+      try {
+        GoogleSignInAccount? googleUser = await GoogleSignIn().signInSilently();
+
+        googleUser ??= await GoogleSignIn().signIn();
+
+        final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth?.accessToken,
+          idToken: googleAuth?.idToken,
+        );
+        await FirebaseAuth.instance.signInWithCredential(credential);
+        debugPrint(FirebaseAuth.instance.currentUser!.displayName!);
+      } catch (error) {
+        debugPrint("Failed to sign in with Google: $error");
+      }
+    } else {
+      debugPrint("User already signed in");
+    }
+  }
 
   static Future<List<Post>> getPosts(int count) async {
     //TODO fetch n posts
@@ -46,6 +77,24 @@ class DatabaseHandler {
       'category': post.category,
       'isActive': true,
     });
+  }
+
+  static Future<String?> uploadImageToFirestore(XFile image, String folder) async {
+    File file = File(image.path);
+    String firebaseUserId = FirebaseAuth.instance.currentUser!.uid;
+    String fileName = '${firebaseUserId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    String filePath = '$folder/$fileName';
+    Reference ref = storageRef.child(filePath);
+
+    try {
+      await ref.putFile(file);
+      String downloadURL = await ref.getDownloadURL();
+      debugPrint('Firebase URL: $downloadURL');
+      return downloadURL;
+    } catch (e) {
+      debugPrint(e.toString());
+      return null;
+    }
   }
 
   static Future<Post> getSinglePost(String postId) async {

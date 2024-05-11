@@ -1,6 +1,5 @@
 import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class LocationField extends StatefulWidget {
   final Function onSubmitted;
@@ -61,13 +60,18 @@ class _LocationFieldState extends State<LocationField> {
             ),
             child: TextField(
               controller: _controller,
+              onChanged: (value) {
+                setState(() {
+                  _locationTemp = value;
+                });
+              },
               onTapOutside: (PointerDownEvent event) {
                 FocusScope.of(context).unfocus();
                 widget.onSubmitted(_locationTemp);
               },
-              onSubmitted: (String description) {
+              onSubmitted: (String location) {
                 FocusScope.of(context).unfocus();
-                widget.onSubmitted(description);
+                widget.onSubmitted(location);
               },
               onEditingComplete: () {
                 widget.onSubmitted(_locationTemp);
