@@ -55,13 +55,32 @@ class _SettingsRowState extends State<SettingsRow> {
         color: appColor,
         size: widget.iconSize,
       );
+    } else if (widget.iconPath == 'open_in_browser') {
+      return Icon(
+        Icons.open_in_browser,
+        color: appColor,
+        size: widget.iconSize,
+      );
+    } else if (widget.iconPath == 'subtitles_off') {
+      return Icon(
+        Icons.subtitles_off_outlined,
+        color: appColor,
+        size: widget.iconSize,
+      );
+    } else if (widget.iconPath == 'star') {
+      return Icon(
+        Icons.star_border,
+        color: appColor,
+        size: widget.iconSize,
+      );
+    } else {
+      return SvgPicture.asset(
+        widget.iconPath,
+        // ignore: deprecated_member_use
+        color: appColor,
+        height: widget.iconSize,
+      );
     }
-    return SvgPicture.asset(
-      widget.iconPath,
-      // ignore: deprecated_member_use
-      color: appColor,
-      height: widget.iconSize,
-    );
   }
 
   Widget settingsRowBuilder() {

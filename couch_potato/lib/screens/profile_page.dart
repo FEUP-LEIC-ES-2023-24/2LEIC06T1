@@ -1,3 +1,5 @@
+import 'package:couch_potato/modules/card_widget.dart';
+import 'package:couch_potato/profile/settings_row.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -10,43 +12,59 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
-    return Container();
-    /*return Center(
+    return Padding(
+      padding: const EdgeInsets.all(10),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                    width: 1.5, color: Colors.black54)),
-            child: Image.network(
-                userCredential.value.user!.photoURL.toString()),
+          /* ProfileHeader(), */
+          const SizedBox(height: 30),
+          CardWidget(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+            backgroundColor: const Color(0xFFFAFAFA),
+            child: Column(
+              children: [
+                SettingsRow(
+                  iconPath: 'open_in_browser',
+                  text: 'Open posts',
+                  onTap: () {},
+                  padding: const EdgeInsets.only(top: 10, bottom: 3),
+                ),
+                const Divider(color: Color(0xFFEBEBEB), thickness: 1, indent: 54),
+                SettingsRow(
+                  iconPath: 'subtitles_off',
+                  text: 'Closed posts',
+                  onTap: () {},
+                  padding: const EdgeInsets.only(top: 3, bottom: 10),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(
-            height: 20,
+          const SizedBox(height: 30),
+          CardWidget(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+            backgroundColor: const Color(0xFFFAFAFA),
+            child: Column(
+              children: [
+                SettingsRow(
+                  iconPath: 'star',
+                  text: 'Favorite list',
+                  onTap: () {},
+                  padding: const EdgeInsets.only(top: 10, bottom: 3),
+                ),
+                const Divider(color: Color(0xFFEBEBEB), thickness: 1, indent: 54),
+                SettingsRow(
+                  iconPath: 'assets/place_item.svg',
+                  text: 'Acquired items',
+                  onTap: () {},
+                  padding: const EdgeInsets.only(top: 3, bottom: 10),
+                ),
+              ],
+            ),
           ),
-          Text(userCredential.value.user!.displayName
-              .toString()),
-          const SizedBox(
-            height: 20,
-          ),
-          Text(userCredential.value.user!.email.toString()),
-          const SizedBox(
-            height: 30,
-          ),
-          ElevatedButton(
-              onPressed: () async {
-                bool result = await signOutFromGoogle();
-                if (result) userCredential.value = '';
-              },
-              child: const Text('Logout'))
         ],
       ),
     );
-    */
   }
 }
-
