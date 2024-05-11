@@ -17,10 +17,9 @@ class _ProfileHeaderState extends State<ProfileHeader> {
   @override
   void initState() {
     User? user = FirebaseAuth.instance.currentUser;
-
-// Retrieve user details
     username = user?.displayName ?? 'Username';
     photoURL = user?.photoURL ?? '';
+    
     super.initState();
   }
 

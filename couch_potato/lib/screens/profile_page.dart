@@ -19,7 +19,7 @@ class _ProfilePageState extends State<ProfilePage> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ProfileHeader(),
+          const ProfileHeader(),
           const SizedBox(height: 30),
           CardWidget(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),

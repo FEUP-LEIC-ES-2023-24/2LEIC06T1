@@ -44,6 +44,7 @@ class DatabaseHandler {
       'mediaPlaceholder': post.mediaPlaceholder,
       'fullLocation': post.fullLocation,
       'category': post.category,
+      'isActive': true,
     });
   }
 
