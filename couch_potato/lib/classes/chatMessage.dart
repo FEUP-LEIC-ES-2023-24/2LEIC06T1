@@ -20,5 +20,13 @@ class ChatMessage {
     return 'Message(chatId: $chatId, senderId: $senderId, text: $text, timestamp: $timestamp)';
   }
 
+  factory ChatMessage.fromMap(Map<String, dynamic> map) {
+    return ChatMessage(
+      chatId: map['chatId'],
+      senderId: map['senderId'],
+      text: map['text'],
+      timestamp: map['timestamp'], // Assuming timestamp is stored as a Timestamp in Firestore
+    );
+  }
   
 }

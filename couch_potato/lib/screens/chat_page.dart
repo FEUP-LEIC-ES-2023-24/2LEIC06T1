@@ -74,13 +74,7 @@ class _ChatPageState extends State<ChatPage> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              reverse: true,
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                return textBubble(chatMessage: _messages[index]);
-              },
-            ),
+            child: _buildMessagesStream(chat),
           ),
           Divider(height: 1.0),
           Container(
@@ -91,6 +85,40 @@ class _ChatPageState extends State<ChatPage> {
       )
     );
   }
+
+  Widget _buildMessagesStream(Chat? chat) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('messages')
+          .where("chatId", isEqualTo: chat!.id)
+          .orderBy('timestamp', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+        final List<ChatMessage> messages = [];
+        snapshot.data!.docs.forEach((doc) {
+          final data = doc.data() as Map<String, dynamic>?; // Explicitly cast to Map<String, dynamic> or nullable
+          if (data != null) {
+            messages.add(ChatMessage.fromMap(data));
+          }
+        });
+        
+        return ListView.builder(
+          reverse: true,
+          itemCount: messages.length,
+          itemBuilder: (context, index) {
+            return TextBubble(chatMessage: messages[index]);
+          },
+        );
+      },
+    );
+  }
+
 
   Widget _buildTextComposer() {
     return IconTheme(
@@ -117,14 +145,16 @@ class _ChatPageState extends State<ChatPage> {
   }
 }
 
-class textBubble extends StatelessWidget {
+class TextBubble extends StatelessWidget {
 
   final ChatMessage chatMessage;
 
-  textBubble({required this.chatMessage});
+  TextBubble({required this.chatMessage});
 
   @override
   Widget build(BuildContext context) {
+
+    print("\n\n text booble\n\n");
 
     String photoURL = "https://ichef.bbci.co.uk/news/976/cpsprodpb/16620/production/_91408619_55df76d5-2245-41c1-8031-07a4da3f313f.jpg.webp";
     String? url = FirebaseAuth.instance.currentUser?.photoURL;
@@ -135,7 +165,7 @@ class textBubble extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             margin: EdgeInsets.only(right: 16.0),
