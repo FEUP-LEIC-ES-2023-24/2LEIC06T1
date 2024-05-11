@@ -65,7 +65,11 @@ class _LocationFieldState extends State<LocationField> {
                 widget.onSubmitted(_locationTemp);
               },
               onSubmitted: (String description) {
+                FocusScope.of(context).unfocus();
                 widget.onSubmitted(description);
+              },
+              onEditingComplete: () {
+                widget.onSubmitted(_locationTemp);
               },
               textCapitalization: TextCapitalization.sentences,
               keyboardType: TextInputType.streetAddress,

@@ -42,9 +42,9 @@ class DatabaseHandler {
     List<Post> posts = [];
 
     await db.collection("posts").get().then((event) {
-      debugPrint("Posts - ${event.docs.length}:");
+      debugPrint("Posts: ${event.docs.length}:");
       for (var item in event.docs) {
-        debugPrint("${item.id} => ${item.data()}");
+        debugPrint("Post: ${item.id} => ${item.data()}");
 
         Post post = Post(
           postId: item.id,
@@ -75,6 +75,7 @@ class DatabaseHandler {
       'mediaPlaceholder': post.mediaPlaceholder,
       'fullLocation': post.fullLocation,
       'category': post.category,
+      'isActive': true,
     });
   }
 
@@ -100,7 +101,7 @@ class DatabaseHandler {
     late Post post;
 
     await db.collection("posts").doc(postId).get().then((event) {
-      debugPrint("Post - ${event.id}: ${event.data()}");
+      debugPrint("Post: ${event.id}: ${event.data()}");
 
       post = Post(
         postId: event.id,
