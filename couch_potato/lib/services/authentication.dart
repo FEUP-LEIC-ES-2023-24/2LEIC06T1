@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:flutter/material.dart';
 import '../classes/user.dart';
 
 class AuthService {
@@ -26,7 +26,7 @@ class AuthService {
         );
       }
     } on FirebaseAuthException catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
     return null;
   } 
