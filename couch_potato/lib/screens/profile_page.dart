@@ -1,4 +1,5 @@
 import 'package:couch_potato/modules/card_widget.dart';
+import 'package:couch_potato/profile/profile_header.dart';
 import 'package:couch_potato/profile/settings_row.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +19,7 @@ class _ProfilePageState extends State<ProfilePage> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          /* ProfileHeader(), */
+          ProfileHeader(),
           const SizedBox(height: 30),
           CardWidget(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
