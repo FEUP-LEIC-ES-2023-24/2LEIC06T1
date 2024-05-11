@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:couch_potato/network/database_handler.dart';
+import 'package:couch_potato/classes/chatMessage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -29,14 +32,32 @@ class _ChatPageState extends State<ChatPage> {
 
   void _handleSubmit(String text) {
     _controller.clear();
+    
+    String senderId = "";
+    String senderName = "";
+    String senderPhoto = "";
+    User? user = FirebaseAuth.instance.currentUser;
+    if(user != null){
+      senderId = user.uid;
+      senderName = user.displayName!;
+      senderPhoto = user.photoURL!;
+    }
+    
     ChatMessage message = ChatMessage(
-      text: text,
       // Mocking the sender for now
-      sender: 'Me',
+      senderId: senderId,
+      senderName: senderName,
+      senderPhoto: senderPhoto,
+      receiverId: "ze",
+      receiverName: senderName,
+      receiverPhoto: senderPhoto,
+      text: text,
+      timestamp: Timestamp.now()
     );
     setState(() {
       _messages.insert(0, message);
     });
+    DatabaseHandler.sendMessage(message); //firestore
   }
 
   @override
@@ -48,7 +69,7 @@ class _ChatPageState extends State<ChatPage> {
             reverse: true,
             itemCount: _messages.length,
             itemBuilder: (context, index) {
-              return _messages[index];
+              return textBubble(chatMessage: _messages[index]);
             },
           ),
         ),
@@ -86,14 +107,21 @@ class _ChatPageState extends State<ChatPage> {
   }
 }
 
-class ChatMessage extends StatelessWidget {
-  final String text;
-  final String sender;
+class textBubble extends StatelessWidget {
 
-  ChatMessage({required this.text, required this.sender});
+  final ChatMessage chatMessage;
+
+  textBubble({required this.chatMessage});
 
   @override
   Widget build(BuildContext context) {
+
+    String photoURL = "https://ichef.bbci.co.uk/news/976/cpsprodpb/16620/production/_91408619_55df76d5-2245-41c1-8031-07a4da3f313f.jpg.webp";
+    String? url = FirebaseAuth.instance.currentUser?.photoURL;
+    if(url != null){
+      photoURL = url;
+    }
+
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
@@ -102,16 +130,16 @@ class ChatMessage extends StatelessWidget {
           Container(
             margin: EdgeInsets.only(right: 16.0),
             child: CircleAvatar(
-              child: Text(sender[0]),
+              backgroundImage: NetworkImage(photoURL)
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(sender),
+              Text(chatMessage.senderName),
               Container(
                 margin: EdgeInsets.only(top: 5.0),
-                child: Text(text),
+                child: Text(chatMessage.text),
               ),
             ],
           ),
@@ -120,3 +148,4 @@ class ChatMessage extends StatelessWidget {
     );
   }
 }
+

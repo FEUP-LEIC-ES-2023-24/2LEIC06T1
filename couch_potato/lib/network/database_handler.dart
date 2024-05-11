@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couch_potato/classes/post.dart';
+import 'package:couch_potato/classes/chatMessage.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DatabaseHandler {
   static final db = FirebaseFirestore.instance;
@@ -67,5 +69,14 @@ class DatabaseHandler {
     });
 
     return post;
+  }
+
+  static Future<void> sendMessage(ChatMessage message) async {
+    await db.collection("messages").add({
+      'senderId': message.senderId,
+      'receiverId': message.receiverId,
+      'text': message.text,
+      'timestamp': message.timestamp,
+    });
   }
 }
