@@ -162,24 +162,51 @@ class TextBubble extends StatelessWidget {
       photoURL = url;
     }
 
+    DateTime date = chatMessage.timestamp.toDate();
+    String hours = date.hour.toString();
+    String minutes = date.minute.toString();
+
+    bool amISender = chatMessage.senderId == FirebaseAuth.instance.currentUser!.uid;
+
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10.0),
+      margin: EdgeInsets.symmetric(vertical: 1.0),
       child: Row(
+        mainAxisAlignment: amISender ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            margin: EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(photoURL)
-            ),
-          ),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: amISender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
-              Text(chatMessage.senderId == FirebaseAuth.instance.currentUser!.uid ? "me" : "you"),
+              //Text(amISender ? 'Me' : 'ze'),
               Container(
-                margin: EdgeInsets.only(top: 5.0),
-                child: Text(chatMessage.text),
+                margin: EdgeInsets.only(top: 0.0, left: amISender ? 0 : 5, right: amISender ?  5.0 : 0),
+                padding: EdgeInsets.all(4.0),
+                decoration: BoxDecoration(
+                  color: amISender ? Colors.blue : Colors.grey,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(15.0),
+                    topRight: Radius.circular(15.0),
+                    bottomLeft: amISender ? Radius.circular(15.0) : Radius.circular(0.0),
+                    bottomRight: amISender ? Radius.circular(0.0) : Radius.circular(15.0),
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children:[
+                    Container(
+                      padding: EdgeInsets.all(8.0),
+                      //padding: EdgeInsets.only(right: 5.0),
+                      child: Text(
+                        chatMessage.text,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    Text(
+                      hours + ':' + minutes,
+                      style: TextStyle(color: Colors.white, fontSize: 10),
+                    )
+                  ],
+                ),
               ),
             ],
           ),
