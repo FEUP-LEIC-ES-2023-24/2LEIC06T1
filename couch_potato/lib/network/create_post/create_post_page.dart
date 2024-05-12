@@ -258,7 +258,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         getImageFromCamera: getImageFromCamera,
                         imageUrl: widget.mediaUrl,
                         mediaPlaceholder: widget.mediaPlaceholder,
-                        noMedia: (widget.mediaUrl == null || widget.mediaUrl == ''),
                       ),
                       if (_media != null)
                         Positioned(
