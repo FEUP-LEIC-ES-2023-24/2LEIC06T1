@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter/material.dart';
 
 class GoogleSignInScreen extends StatefulWidget {
   const GoogleSignInScreen({Key? key}) : super(key: key);
@@ -64,28 +63,52 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
                           )
                         )
                       ),
-              );
-            }));
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          'Sign in with google',
+                          style: TextStyle(fontSize: 20.0),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 
 Future<dynamic> signInWithGoogle() async {
-  try {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  /* try { */
+  GoogleSignInAccount? googleUser;
 
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
-
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
-
-    return await FirebaseAuth.instance.signInWithCredential(credential);
-  } on Exception catch (e) {
-    // TODO
-    print('exception->$e');
+  while (googleUser == null) {
+    googleUser = await GoogleSignIn(
+            scopes: ['email', 'profile', 'openid'],
+            serverClientId: '558481956553-717gvml0ql1ats1564u6m4rs7s9bu7ss.apps.googleusercontent.com')
+        .signIn();
   }
+
+  GoogleSignInAuthentication? googleAuth;
+
+  while (googleAuth == null) {
+    googleAuth = await googleUser.authentication;
+  }
+
+  final credential = GoogleAuthProvider.credential(
+    accessToken: googleAuth.accessToken,
+    idToken: googleAuth.idToken,
+  );
+
+  return await FirebaseAuth.instance.signInWithCredential(credential);
+  /* } catch (e) {
+    // TODO
+    debugPrint('exception->$e');
+  } */
 }
 
 Future<bool> signOutFromGoogle() async {
