@@ -188,7 +188,7 @@ class DatabaseHandler {
     await db
         .collection("posts")
         .where('userId', isEqualTo: currentUserId)
-        .where('isActive', isEqualTo: true)
+        .where('isActive', isEqualTo: openPosts)
         .get()
         .then((event) {
       debugPrint("Posts: ${event.docs.length}:");
