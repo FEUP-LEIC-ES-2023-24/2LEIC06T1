@@ -5,6 +5,7 @@ import 'package:couch_potato/network/post/post_footer.dart';
 import 'package:couch_potato/network/post/post_header.dart';
 import 'package:couch_potato/network/redirected_post/redirected_post.dart';
 import 'package:couch_potato/utils/utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:blurhash_ffi/blurhash_ffi.dart';
 import 'package:share_plus/share_plus.dart';
@@ -21,6 +22,8 @@ class SocialPost extends StatefulWidget {
   final String imageUrl;
   final String postId;
   final String fullLocation;
+  final String category;
+  final String userId;
   const SocialPost({
     super.key,
     required this.profileImageUrl,
@@ -31,6 +34,8 @@ class SocialPost extends StatefulWidget {
     required this.imageUrl,
     required this.postId,
     required this.fullLocation,
+    required this.category,
+    required this.userId,
   });
 
   @override
@@ -140,9 +145,13 @@ class _SocialPostState extends State<SocialPost> with SingleTickerProviderStateM
       duration: const Duration(milliseconds: 300),
       child: GestureDetector(
         onTap: () {
+          String userId = FirebaseAuth.instance.currentUser!.uid;
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => RedirectedPost(postId: widget.postId),
+              builder: (context) => RedirectedPost(
+                postId: widget.postId,
+                currentUserPost: widget.userId == userId,
+              ),
             ),
           );
         },

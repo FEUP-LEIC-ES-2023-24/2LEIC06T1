@@ -191,6 +191,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
             imageUrl: post.mediaUrl,
             mediaPlaceholder: post.mediaPlaceholder,
             fullLocation: post.fullLocation,
+            category: post.category,
+            userId: post.userId,
           ),
         );
 

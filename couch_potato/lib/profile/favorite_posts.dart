@@ -160,6 +160,8 @@ class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMi
             imageUrl: post.mediaUrl,
             mediaPlaceholder: post.mediaPlaceholder,
             fullLocation: post.fullLocation,
+            category: post.category,
+            userId: post.userId,
           ),
         );
 
