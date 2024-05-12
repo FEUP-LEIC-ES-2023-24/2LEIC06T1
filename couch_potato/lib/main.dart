@@ -71,7 +71,6 @@ class _MyHomeState extends State<MyHome> {
   final PageController _pageController = PageController(initialPage: 1);
 
   final List<Widget> _pages = [
-    //const ChatPage(),
     const ChatListPage(),
     const HomePage(),
     const ProfilePage(),
