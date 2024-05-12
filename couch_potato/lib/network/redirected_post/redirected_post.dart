@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RedirectedPost extends StatefulWidget {
   final String postId;
@@ -34,6 +35,7 @@ class _RedirectedPostState extends State<RedirectedPost> {
 
   @override
   void initState() {
+    fetchIsFavorite();
     fetchPost();
     super.initState();
     Future.delayed(const Duration(milliseconds: 100), () {
@@ -49,6 +51,19 @@ class _RedirectedPostState extends State<RedirectedPost> {
       setState(() {
         post = fetchedPost;
         _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchIsFavorite() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> favorites =  prefs.getStringList('favorites') ?? [];
+
+    bool value = favorites.contains(widget.postId);
+
+    if (context.mounted) {
+      setState(() {
+        isFavorite = value;
       });
     }
   }
@@ -122,13 +137,12 @@ class _RedirectedPostState extends State<RedirectedPost> {
                           PostFooter(
                             fullLocation: post!.fullLocation,
                             isFavorite: isFavorite,
-                            favFunction: () async {
-                              //TODO Favorite post in DB
-                              await DatabaseHandler.addFavorite(widget.postId);
-
+                            favFunction: () async {                           
                               setState(() {
                                 isFavorite = !isFavorite;
                               });
+
+                              await DatabaseHandler.addFavorite(widget.postId, !isFavorite);
                             },
                             sharePostFunction: () async {
                               try {

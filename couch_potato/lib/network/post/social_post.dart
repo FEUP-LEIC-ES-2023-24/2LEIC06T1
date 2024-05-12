@@ -67,10 +67,9 @@ class _SocialPostState extends State<SocialPost> with SingleTickerProviderStateM
     );
   }
 
-  //TODO check if user favorited the post
   Future<void> fetchIsFavorite() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> favorites =  prefs.getStringList('favorites') ?? [];
+    List<String> favorites = prefs.getStringList('favorites') ?? [];
 
     bool value = favorites.contains(widget.postId);
 
@@ -202,12 +201,11 @@ class _SocialPostState extends State<SocialPost> with SingleTickerProviderStateM
                 fullLocation: widget.fullLocation,
                 isFavorite: isFavorite,
                 favFunction: () async {
-                  //TODO Favorite post in DB
-                  await DatabaseHandler.addFavorite(widget.postId);
-
                   setState(() {
                     isFavorite = !isFavorite;
                   });
+
+                  await DatabaseHandler.addFavorite(widget.postId, !isFavorite);
                 },
                 sharePostFunction: () async {
                   try {

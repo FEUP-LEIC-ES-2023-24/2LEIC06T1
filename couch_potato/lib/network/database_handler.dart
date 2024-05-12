@@ -145,13 +145,20 @@ class DatabaseHandler {
     debugPrint('Favorites saved to Shared Preferences: ${prefs.getStringList('favorites')}');
   }
 
-  static Future<void> addFavorite(String postId) async {
+  static Future<void> addFavorite(String postId, bool remove) async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) return;
 
-    await db.collection('favorites').add({
-      'userId': currentUser.uid,
-      'postId': postId,
-    });
+    if (remove) {
+      QuerySnapshot querySnapshot = await db.collection('favorites').where('userId', isEqualTo: currentUser.uid).where('postId', isEqualTo: postId).get();
+      for (var doc in querySnapshot.docs) {
+        await db.collection('favorites').doc(doc.id).delete();
+      }
+    } else {
+      await db.collection('favorites').add({
+        'userId': currentUser.uid,
+        'postId': postId,
+      });
+    }
   }
 }

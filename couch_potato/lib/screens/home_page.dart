@@ -155,6 +155,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
               _noMorePosts = false;
             });
 
+            await DatabaseHandler.fetchAndSaveFavorites();
+
             await Future.wait([fetchPosts()]).timeout(const Duration(seconds: 5));
             setState(() {
               _isLoading = false;
