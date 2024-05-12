@@ -137,12 +137,10 @@ class DatabaseHandler {
       favoritePostIds.add(doc['postId']);
     }
 
-    debugPrint('Favorites List: $favoritePostIds');
-
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('favorites', favoritePostIds);
 
-    debugPrint('Favorites saved to Shared Preferences: ${prefs.getStringList('favorites')}');
+    debugPrint('Favorite Posts: ${prefs.getStringList('favorites')}');
   }
 
   static Future<void> addFavorite(String postId, bool remove) async {
@@ -160,5 +158,20 @@ class DatabaseHandler {
         'postId': postId,
       });
     }
+  }
+
+  static Future<List<Post>> fetchFavoritePosts() async {
+    List<Post> favoritePosts = [];
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? favoritePostIds = prefs.getStringList('favorites');
+
+    if (favoritePostIds == null) return favoritePosts;
+
+    for (String postId in favoritePostIds) {
+      Post post = await getSinglePost(postId);
+      favoritePosts.add(post);
+    }
+
+    return favoritePosts;
   }
 }

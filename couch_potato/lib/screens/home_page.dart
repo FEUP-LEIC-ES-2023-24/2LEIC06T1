@@ -27,17 +27,11 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   bool hasConnection = true;
   bool _isLoading = true;
-  bool _isFetchingMorePosts = false; //TODO implement (not final)
+  bool _isFetchingMorePosts = false; //TODO fetch more posts
   bool _noMorePosts = false;
 
   int offset = 0;
   int numberOfPosts = 5;
-
-  static const TextStyle tabTextStyle = TextStyle(
-    fontFamily: "Montserrat",
-    fontWeight: FontWeight.w500,
-    fontSize: 15,
-  );
 
   @override
   void initState() {
