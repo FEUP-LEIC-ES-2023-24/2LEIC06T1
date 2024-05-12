@@ -180,7 +180,7 @@ class DatabaseHandler {
     return favoritePosts;
   }
 
-  static Future<List<Post>> fetchUserPosts(bool openPosts) async {
+  static Future<List<Post>> fetchUserPosts(bool open) async {
     List<Post> openPosts = [];
 
     String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
@@ -188,7 +188,7 @@ class DatabaseHandler {
     await db
         .collection("posts")
         .where('userId', isEqualTo: currentUserId)
-        .where('isActive', isEqualTo: openPosts)
+        .where('isActive', isEqualTo: open)
         .get()
         .then((event) {
       debugPrint("Posts: ${event.docs.length}:");
