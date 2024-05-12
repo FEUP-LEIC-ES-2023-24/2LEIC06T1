@@ -53,6 +53,7 @@ dependencies:
   tinycolor2: ^3.0.1
   firebase_storage: ^11.6.9
   auto_size_text: ^3.0.0
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:

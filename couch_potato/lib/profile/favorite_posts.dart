@@ -1,37 +1,29 @@
 import 'package:couch_potato/classes/post.dart';
+import 'package:couch_potato/modules/app_bar.dart';
 import 'package:couch_potato/modules/page_fault_screen.dart';
-import 'package:couch_potato/network/create_post/create_post_page.dart';
 import 'package:couch_potato/network/database_handler.dart';
 import 'package:couch_potato/network/post/social_post.dart';
 import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class FavoritePosts extends StatefulWidget {
+  const FavoritePosts({super.key});
 
   @override
-  HomePageState createState() => HomePageState();
+  FavoritePostsState createState() => FavoritePostsState();
 }
 
-class HomePageState extends State<HomePage> with TickerProviderStateMixin {
+class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMixin {
   List<Post> posts = [];
 
   late ScrollController scrollController;
 
   late AnimationController _animationController;
-  late Animation<double> _opacityAnimation;
-  late Animation<double> _translateAnimation;
 
   bool hasConnection = true;
   bool _isLoading = true;
-  bool _isFetchingMorePosts = false; //TODO fetch more posts
-  bool _noMorePosts = false;
-
-  int offset = 0;
-  int numberOfPosts = 5;
 
   @override
   void initState() {
@@ -44,19 +36,10 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     setHasConnection();
 
-    _opacityAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(_animationController);
-    _translateAnimation = Tween<double>(begin: 0.0, end: 20.0).animate(_animationController);
     scrollController = ScrollController();
     setUpScrollController(scrollController);
 
     fetchPosts();
-  }
-
-  void _scrollListener() {
-    if (_isFetchingMorePosts || _noMorePosts) return;
-    if (scrollController.position.pixels + 50 >= scrollController.position.maxScrollExtent) {
-      fetchPosts();
-    }
   }
 
   void setUpScrollController(ScrollController controller) {
@@ -67,7 +50,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         _animationController.forward();
       }
     });
-    scrollController.addListener(_scrollListener);
   }
 
   void setHasConnection() async {
@@ -78,29 +60,17 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<void> fetchPosts() async {
-    if (_isFetchingMorePosts) return;
-    setState(() {
-      _isFetchingMorePosts = true;
-    });
+    List<Post> newPosts = await DatabaseHandler.fetchFavoritePosts();
 
-    List<Post> newPosts = await DatabaseHandler.getPosts(1);
-    if (newPosts.isEmpty) {
-      setState(() {
-        _noMorePosts = true;
-      });
-    }
     setState(() {
-      _isFetchingMorePosts = false;
-      posts.addAll(newPosts);
+      posts = newPosts;
       _isLoading = false;
     });
-    //TODO try catch
   }
 
   @override
   void dispose() {
     _animationController.dispose();
-    scrollController.removeListener(_scrollListener);
     scrollController.dispose();
     super.dispose();
   }
@@ -108,36 +78,10 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: AnimatedBuilder(
-          animation: _animationController,
-          builder: (context, child) {
-            return Opacity(
-              opacity: _opacityAnimation.value,
-              child: Transform.translate(
-                offset: Offset(0, _translateAnimation.value),
-                child: Transform.scale(
-                  scale: 0.9,
-                  child: FloatingActionButton(
-                    onPressed: () async {
-                      if (await hasInternetConnection() && mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const CreatePostPage()
-                            ),
-                          );
-                        }
-                      HapticFeedback.selectionClick();
-                    },
-                    foregroundColor: Colors.white,
-                    backgroundColor: appColor,
-                    shape: const CircleBorder(),
-                    child: const Icon(Icons.add, size: 35),
-                  ),
-                ),
-              ),
-            );
-          }),
+      appBar: const MyAppBar(
+        title: 'Favorites',
+        showBackButton: true,
+      ),
       resizeToAvoidBottomInset: false,
       body: RefreshIndicator(
         color: appColor,
@@ -145,8 +89,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           try {
             setState(() {
               _isLoading = true;
-              offset = 0;
-              _noMorePosts = false;
             });
 
             await DatabaseHandler.fetchAndSaveFavorites();
@@ -191,37 +133,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             title: 'No Posts',
                             description: 'Seems like there are currently no potatoes',
                           )
-                        : Column(
-                            children: [
-                              buildPostList(posts),
-                              _isFetchingMorePosts
-                                  ? SizedBox(
-                                      height: 60,
-                                      child: LoadingAnimationWidget.waveDots(
-                                        color: Colors.grey.shade200,
-                                        size: 70,
-                                      ),
-                                    )
-                                  : _noMorePosts
-                                      ? const SizedBox(
-                                          height: 60,
-                                          child: Center(
-                                            child: Text(
-                                              "There are no more posts available",
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.normal,
-                                                color: Color(0xFF858B92),
-                                                fontFamily: 'Montserrat',
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                      : const SizedBox(
-                                          height: 60,
-                                        )
-                            ],
-                          ),
+                        : buildPostList(posts),
           ),
         ),
       ),

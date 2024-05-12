@@ -1,7 +1,7 @@
 import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
 
-enum Category { furniture, electronics, clothing, books, other } //TODO add more categories
+enum Category { furniture, electronics, clothing, books, other }
 
 class CategoryField extends StatefulWidget {
   final Function onSubmitted;

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DatabaseHandler {
   static final db = FirebaseFirestore.instance;
@@ -117,5 +118,60 @@ class DatabaseHandler {
     });
 
     return post;
+  }
+
+  static Future<void> fetchAndSaveFavorites() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      debugPrint('User not signed in');
+      return;
+    }
+
+    CollectionReference favorites = db.collection('favorites');
+
+    List<String> favoritePostIds = [];
+
+    QuerySnapshot querySnapshot = await favorites.where('userId', isEqualTo: currentUser.uid).get();
+
+    for (var doc in querySnapshot.docs) {
+      favoritePostIds.add(doc['postId']);
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('favorites', favoritePostIds);
+
+    debugPrint('Favorite Posts: ${prefs.getStringList('favorites')}');
+  }
+
+  static Future<void> addFavorite(String postId, bool remove) async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    if (remove) {
+      QuerySnapshot querySnapshot = await db.collection('favorites').where('userId', isEqualTo: currentUser.uid).where('postId', isEqualTo: postId).get();
+      for (var doc in querySnapshot.docs) {
+        await db.collection('favorites').doc(doc.id).delete();
+      }
+    } else {
+      await db.collection('favorites').add({
+        'userId': currentUser.uid,
+        'postId': postId,
+      });
+    }
+  }
+
+  static Future<List<Post>> fetchFavoritePosts() async {
+    List<Post> favoritePosts = [];
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? favoritePostIds = prefs.getStringList('favorites');
+
+    if (favoritePostIds == null) return favoritePosts;
+
+    for (String postId in favoritePostIds) {
+      Post post = await getSinglePost(postId);
+      favoritePosts.add(post);
+    }
+
+    return favoritePosts;
   }
 }

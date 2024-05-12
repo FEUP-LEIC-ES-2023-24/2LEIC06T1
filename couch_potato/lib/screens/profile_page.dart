@@ -1,4 +1,5 @@
 import 'package:couch_potato/modules/card_widget.dart';
+import 'package:couch_potato/profile/favorite_posts.dart';
 import 'package:couch_potato/profile/profile_header.dart';
 import 'package:couch_potato/profile/settings_row.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +52,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 SettingsRow(
                   iconPath: 'star',
                   text: 'Favorite list',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const FavoritePosts(),
+                      ),
+                    );
+                  },
                   padding: const EdgeInsets.only(top: 10, bottom: 3),
                 ),
                 const Divider(color: Color(0xFFEBEBEB), thickness: 1, indent: 54),
