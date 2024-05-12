@@ -63,7 +63,7 @@ class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMi
     List<Post> newPosts = await DatabaseHandler.fetchFavoritePosts();
 
     setState(() {
-      posts.addAll(newPosts);
+      posts = newPosts;
       _isLoading = false;
     });
   }
