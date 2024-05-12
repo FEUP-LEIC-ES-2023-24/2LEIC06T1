@@ -110,7 +110,7 @@ class ClosedPostsState extends State<ClosedPosts> with TickerProviderStateMixin 
           physics: const AlwaysScrollableScrollPhysics(),
           controller: scrollController,
           child: Padding(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
             child: !hasConnection
                 ? const PageFaultScreen(
                     imagePath: 'assets/no_connection.png',
@@ -133,7 +133,33 @@ class ClosedPostsState extends State<ClosedPosts> with TickerProviderStateMixin 
                             title: 'No Posts',
                             description: 'Seems like there are currently no potatoes',
                           )
-                        : buildPostList(posts),
+                        : Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    'Thank you for ',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    'giving back!',
+                                    style: TextStyle(
+                                      color: appColor,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              buildPostList(posts),
+                            ],
+                          ),
           ),
         ),
       ),
