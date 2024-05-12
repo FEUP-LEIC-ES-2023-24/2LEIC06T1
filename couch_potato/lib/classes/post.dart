@@ -7,7 +7,8 @@ class Post {
   final String mediaUrl;
   final String mediaPlaceholder;
   final String fullLocation;
-  final String category;  
+  final String category;
+  final String userId;
 
   Post({
     required this.postId,
@@ -19,10 +20,11 @@ class Post {
     required this.mediaPlaceholder,
     required this.fullLocation,
     required this.category,
+    required this.userId,
   });
 
   @override
   String toString() {
-    return 'Post(PostId: $postId, username: $username, createdAt: $createdAt, profileImageUrl: $profileImageUrl, description: $description, mediaUrl: $mediaUrl, mediaPlaceholder: $mediaPlaceholder, fullLocation: $fullLocation, category: $category)';
+    return 'Post(PostId: $postId, username: $username, createdAt: $createdAt, profileImageUrl: $profileImageUrl, description: $description, mediaUrl: $mediaUrl, mediaPlaceholder: $mediaPlaceholder, fullLocation: $fullLocation, category: $category, userId: $userId)';
   }
 }

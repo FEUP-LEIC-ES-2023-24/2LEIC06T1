@@ -18,7 +18,6 @@ import 'package:couch_potato/utils/snackbars.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 class CreatePostPage extends StatefulWidget {
-  final bool editMode;
   final String postDescription;
   final String postLocation;
   final Category postCategory;
@@ -27,7 +26,6 @@ class CreatePostPage extends StatefulWidget {
   final String? mediaPlaceholder;
   const CreatePostPage({
     super.key,
-    this.editMode = false,
     this.postDescription = '',
     this.postLocation = '',
     this.postCategory = Category.furniture,
@@ -173,6 +171,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
       String cleanedDescription = _description.trimRight();
       String category = _category.toString().split('.').last;
       category = category[0].toUpperCase() + category.substring(1);
+      String userId = FirebaseAuth.instance.currentUser!.uid;
 
       Post post = Post(
         postId: '',
@@ -184,6 +183,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         mediaPlaceholder: blurHash!,
         fullLocation: _location,
         category: category,
+        userId: userId,
       );
 
       try {
@@ -210,29 +210,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
     }
   }
 
-  void editPost() async {
-    String cleanedDescription = _description.trimRight();
-
-    /* databaseHandler.editPost(); */ //TODO edit post logic
-  }
-
   @override
   Widget build(BuildContext context) {
-    /* void popUpYesMethod() {
-      HapticFeedback.selectionClick();
-      debugPrint('Deleting post');
-      /* databaseHandler.deletePost(widget.postId!); */ //TODO delete post
-      Navigator.of(context).pop();
-      Navigator.of(context).pop();
-    }
-
-    void popUpNoMethod() {
-      debugPrint('User rejected post deletion modal');
-      Navigator.of(context).pop();
-    }
-
-    const String popUpText = 'Are you sure you want to delete this post?'; */
-
     return Scaffold(
       appBar: const MyAppBar(showBackButton: true),
       body: Column(
@@ -244,10 +223,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
+                  const Center(
                     child: Text(
-                      widget.editMode ? 'Edit Post' : 'New Post',
-                      style: const TextStyle(
+                      'New Post',
+                      style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w500,
                         fontSize: 18,
@@ -256,26 +235,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
                     ),
                   ),
                   widget.mediaUrl == null ? const SizedBox(height: 10) : const SizedBox(height: 20),
-                  /* Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      if (widget.editMode)
-                        TextButton(
-                          onPressed: () {
-                            showPopUp(context, const Color(0xFFFF6868), popUpYesMethod, popUpNoMethod, popUpText);
-                          },
-                          child: const Text(
-                            'Delete Post',
-                            style: TextStyle(
-                              color: Color(0xFFFF6868),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'Montserrat',
-                            ),
-                          ),
-                        ),
-                    ],
-                  ), */
                   widget.mediaUrl == null ? const SizedBox(height: 5) : const SizedBox(height: 15),
                   const Text(
                     'Description',
@@ -286,14 +245,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
                       fontFamily: 'Montserrat',
                     ),
                   ),
-                  widget.editMode
-                      ? DescriptionTextField(
-                          onSubmitted: descriptionOnSubmitted,
-                          defaultText: widget.postDescription,
-                        )
-                      : DescriptionTextField(
-                          onSubmitted: descriptionOnSubmitted,
-                        ),
+                  DescriptionTextField(
+                    onSubmitted: descriptionOnSubmitted,
+                  ),
                   widget.mediaUrl == null ? const SizedBox(height: 15) : const SizedBox(height: 35),
                   Stack(
                     clipBehavior: Clip.none,
@@ -304,8 +258,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         getImageFromCamera: getImageFromCamera,
                         imageUrl: widget.mediaUrl,
                         mediaPlaceholder: widget.mediaPlaceholder,
-                        noMedia:
-                            (widget.editMode && widget.mediaUrl == null || widget.editMode && widget.mediaUrl == ''),
+                        noMedia: (widget.mediaUrl == null || widget.mediaUrl == ''),
                       ),
                       if (_media != null)
                         Positioned(
@@ -333,22 +286,12 @@ class _CreatePostPageState extends State<CreatePostPage> {
                     ],
                   ),
                   widget.mediaUrl == null ? const SizedBox(height: 10) : const SizedBox(height: 30),
-                  widget.editMode
-                      ? LocationField(
-                          onSubmitted: locationOnSubmitted,
-                          defaultText: widget.postLocation,
-                        )
-                      : LocationField(
-                          onSubmitted: locationOnSubmitted,
-                        ),
-                  widget.editMode
-                      ? CategoryField(
-                          onSubmitted: categoryOnSubmitted,
-                          defaultCategory: widget.postCategory,
-                        )
-                      : CategoryField(
-                          onSubmitted: categoryOnSubmitted,
-                        ),
+                  LocationField(
+                    onSubmitted: locationOnSubmitted,
+                  ),
+                  CategoryField(
+                    onSubmitted: categoryOnSubmitted,
+                  ),
                 ],
               ),
             ),
@@ -402,11 +345,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   }
                   return;
                 }
-                if (widget.editMode) {
-                  editPost();
-                } else {
-                  await publishPost();
-                }
+
+                await publishPost();
               },
               child: const Text(
                 'Publish',

@@ -57,6 +57,7 @@ class DatabaseHandler {
           mediaPlaceholder: item.data()['mediaPlaceholder'],
           fullLocation: item.data()['fullLocation'],
           category: item.data()['category'],
+          userId: item.data()['userId'],
         );
 
         posts.add(post);
@@ -115,6 +116,7 @@ class DatabaseHandler {
         mediaPlaceholder: event.data()!['mediaPlaceholder'],
         fullLocation: event.data()!['fullLocation'],
         category: event.data()!['category'],
+        userId: event.data()!['userId'],
       );
     });
 
@@ -205,6 +207,7 @@ class DatabaseHandler {
           mediaPlaceholder: item.data()['mediaPlaceholder'],
           fullLocation: item.data()['fullLocation'],
           category: item.data()['category'],
+          userId: item.data()['userId'],
         );
 
         openPosts.add(post);
