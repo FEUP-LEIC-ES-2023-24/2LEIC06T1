@@ -174,7 +174,6 @@ class AcquiredItemsState extends State<AcquiredItems> with TickerProviderStateMi
               );
             },
             child: ListTile(
-              backgroundColor: Colors.transparent,
               leading: SizedBox(
                 height: 72,
                 width: 72,
