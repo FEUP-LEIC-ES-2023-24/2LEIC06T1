@@ -4,6 +4,7 @@ import 'package:couch_potato/classes/post.dart';
 import 'package:couch_potato/network/database_handler.dart';
 import 'package:couch_potato/network/post/post_footer.dart';
 import 'package:couch_potato/network/post/post_header.dart';
+import 'package:couch_potato/network/redirected_post/close_post_info.dart';
 import 'package:couch_potato/network/redirected_post/logistics_options.dart';
 import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -16,9 +17,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class RedirectedPost extends StatefulWidget {
   final String postId;
+  final bool currentUserPost;
   const RedirectedPost({
     super.key,
     required this.postId,
+    required this.currentUserPost,
   });
 
   @override
@@ -58,7 +61,7 @@ class _RedirectedPostState extends State<RedirectedPost> {
 
   Future<void> fetchIsFavorite() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> favorites =  prefs.getStringList('favorites') ?? [];
+    List<String> favorites = prefs.getStringList('favorites') ?? [];
 
     bool value = favorites.contains(widget.postId);
 
@@ -137,9 +140,10 @@ class _RedirectedPostState extends State<RedirectedPost> {
                             ),
                           if (post!.mediaUrl.isNotEmpty) const SizedBox(height: 15),
                           PostFooter(
+                            currentUserPost: widget.currentUserPost,
                             fullLocation: post!.fullLocation,
                             isFavorite: isFavorite,
-                            favFunction: () async {                           
+                            favFunction: () async {
                               setState(() {
                                 isFavorite = !isFavorite;
                               });
@@ -165,17 +169,19 @@ class _RedirectedPostState extends State<RedirectedPost> {
                             },
                           ),
                           const SizedBox(height: 15),
-                          SizedBox(
-                            height: 100,
-                            child: Transform.translate(
-                              offset: const Offset(-10, 0),
-                              child: LogisticsOptions(radioCallback: (Logistics value) {
-                                setState(() {
-                                  _logistics = value;
-                                });
-                              }),
-                            ),
-                          ),
+                          widget.currentUserPost
+                              ? ClosePostInfo(category: post!.category)
+                              : SizedBox(
+                                  height: 100,
+                                  child: Transform.translate(
+                                    offset: const Offset(-10, 0),
+                                    child: LogisticsOptions(radioCallback: (Logistics value) {
+                                      setState(() {
+                                        _logistics = value;
+                                      });
+                                    }),
+                                  ),
+                                ),
                           const SizedBox(height: 86),
                         ],
                       ),
@@ -208,11 +214,16 @@ class _RedirectedPostState extends State<RedirectedPost> {
                           elevation: 3,
                         ),
                         onPressed: () async {
-                          //TODO: Acquire item functions
+                          Navigator.pop(context);
+                          if (widget.currentUserPost) {
+                            await DatabaseHandler.closePost(widget.postId);
+                          } else {
+                            debugPrint('acquire item'); //TODO: Acquire item function
+                          }
                         },
-                        child: const Text(
-                          'Acquire',
-                          style: TextStyle(
+                        child: Text(
+                          widget.currentUserPost ? 'Close Post' : 'Acquire',
+                          style: const TextStyle(
                             color: Color(0xFFFFFFFF),
                             fontSize: 22,
                             fontFamily: 'Montserrat',

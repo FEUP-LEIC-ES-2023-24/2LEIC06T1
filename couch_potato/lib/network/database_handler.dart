@@ -59,6 +59,7 @@ class DatabaseHandler {
           mediaPlaceholder: item.data()['mediaPlaceholder'],
           fullLocation: item.data()['fullLocation'],
           category: item.data()['category'],
+          userId: item.data()['userId'],
         );
 
         posts.add(post);
@@ -79,6 +80,7 @@ class DatabaseHandler {
       'fullLocation': post.fullLocation,
       'category': post.category,
       'isActive': true,
+      'userId': FirebaseAuth.instance.currentUser!.uid,
     });
   }
 
@@ -116,6 +118,7 @@ class DatabaseHandler {
         mediaPlaceholder: event.data()!['mediaPlaceholder'],
         fullLocation: event.data()!['fullLocation'],
         category: event.data()!['category'],
+        userId: event.data()!['userId'],
       );
     });
 
@@ -197,7 +200,11 @@ class DatabaseHandler {
     if (currentUser == null) return;
 
     if (remove) {
-      QuerySnapshot querySnapshot = await db.collection('favorites').where('userId', isEqualTo: currentUser.uid).where('postId', isEqualTo: postId).get();
+      QuerySnapshot querySnapshot = await db
+          .collection('favorites')
+          .where('userId', isEqualTo: currentUser.uid)
+          .where('postId', isEqualTo: postId)
+          .get();
       for (var doc in querySnapshot.docs) {
         await db.collection('favorites').doc(doc.id).delete();
       }
@@ -222,5 +229,44 @@ class DatabaseHandler {
     }
 
     return favoritePosts;
+  }
+
+  static Future<List<Post>> fetchUserPosts(bool open) async {
+    List<Post> openPosts = [];
+
+    String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+    await db
+        .collection("posts")
+        .where('userId', isEqualTo: currentUserId)
+        .where('isActive', isEqualTo: open)
+        .get()
+        .then((event) {
+      debugPrint("Posts: ${event.docs.length}:");
+      for (var item in event.docs) {
+        debugPrint("Post: ${item.id} => ${item.data()}");
+
+        Post post = Post(
+          postId: item.id,
+          username: item.data()['username'],
+          createdAt: item.data()['createdAt'],
+          profileImageUrl: item.data()['profileImageUrl'],
+          description: item.data()['description'],
+          mediaUrl: item.data()['mediaUrl'],
+          mediaPlaceholder: item.data()['mediaPlaceholder'],
+          fullLocation: item.data()['fullLocation'],
+          category: item.data()['category'],
+          userId: item.data()['userId'],
+        );
+
+        openPosts.add(post);
+      }
+    });
+
+    return openPosts;
+  }
+
+  static Future<void> closePost(String postId) async {
+    await db.collection("posts").doc(postId).update({'isActive': false});
   }
 }

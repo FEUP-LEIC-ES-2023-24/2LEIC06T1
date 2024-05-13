@@ -7,12 +7,14 @@ class PostFooter extends StatefulWidget {
   final Function favFunction;
   final Function sharePostFunction;
   final bool isFavorite;
+  final bool currentUserPost;
   const PostFooter({
     super.key,
     required this.fullLocation,
     required this.favFunction,
     required this.sharePostFunction,
     required this.isFavorite,
+    this.currentUserPost = false,
   });
 
   @override
@@ -29,6 +31,7 @@ class _PostFooterState extends State<PostFooter> {
         Row(
           children: [
             Icon(Icons.location_pin, color: appColor, size: 20),
+            const SizedBox(width: 5),
             Text(
               widget.fullLocation,
               style: const TextStyle(
@@ -40,38 +43,39 @@ class _PostFooterState extends State<PostFooter> {
             ),
           ],
         ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Transform.translate(
-              offset: const Offset(-10, 0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: Icon(widget.isFavorite ? Icons.star : Icons.star_border),
-                    color: widget.isFavorite ? const Color(0xFFFFC700) : null,
-                    onPressed: () async {
-                      await widget.favFunction();
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Transform.translate(
-              offset: const Offset(0, -1),
-              child: IconButton(
-                onPressed: () {
-                  widget.sharePostFunction();
-                },
-                icon: SvgPicture.asset(
-                  'assets/share_post_icon.svg',
-                  height: 28,
+        if (!widget.currentUserPost) const SizedBox(height: 10),
+        if (!widget.currentUserPost)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Transform.translate(
+                offset: const Offset(-10, 0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(widget.isFavorite ? Icons.star : Icons.star_border),
+                      color: widget.isFavorite ? const Color(0xFFFFC700) : null,
+                      onPressed: () async {
+                        await widget.favFunction();
+                      },
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
-        ),
+              Transform.translate(
+                offset: const Offset(0, -1),
+                child: IconButton(
+                  onPressed: () {
+                    widget.sharePostFunction();
+                  },
+                  icon: SvgPicture.asset(
+                    'assets/share_post_icon.svg',
+                    height: 28,
+                  ),
+                ),
+              ),
+            ],
+          ),
       ],
     );
   }

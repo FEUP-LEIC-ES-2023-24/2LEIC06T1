@@ -8,14 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class FavoritePosts extends StatefulWidget {
-  const FavoritePosts({super.key});
+class OpenPosts extends StatefulWidget {
+  const OpenPosts({super.key});
 
   @override
-  FavoritePostsState createState() => FavoritePostsState();
+  OpenPostsState createState() => OpenPostsState();
 }
 
-class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMixin {
+class OpenPostsState extends State<OpenPosts> with TickerProviderStateMixin {
   List<Post> posts = [];
 
   late ScrollController scrollController;
@@ -60,7 +60,7 @@ class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMi
   }
 
   Future<void> fetchPosts() async {
-    List<Post> newPosts = await DatabaseHandler.fetchFavoritePosts();
+    List<Post> newPosts = await DatabaseHandler.fetchUserPosts(true);
 
     setState(() {
       posts = newPosts;
@@ -79,7 +79,7 @@ class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMi
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const MyAppBar(
-        title: 'Favorites',
+        title: 'Open Posts',
         showBackButton: true,
       ),
       resizeToAvoidBottomInset: false,

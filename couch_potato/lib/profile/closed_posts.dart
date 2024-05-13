@@ -8,14 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class FavoritePosts extends StatefulWidget {
-  const FavoritePosts({super.key});
+class ClosedPosts extends StatefulWidget {
+  const ClosedPosts({super.key});
 
   @override
-  FavoritePostsState createState() => FavoritePostsState();
+  ClosedPostsState createState() => ClosedPostsState();
 }
 
-class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMixin {
+class ClosedPostsState extends State<ClosedPosts> with TickerProviderStateMixin {
   List<Post> posts = [];
 
   late ScrollController scrollController;
@@ -60,7 +60,7 @@ class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMi
   }
 
   Future<void> fetchPosts() async {
-    List<Post> newPosts = await DatabaseHandler.fetchFavoritePosts();
+    List<Post> newPosts = await DatabaseHandler.fetchUserPosts(false);
 
     setState(() {
       posts = newPosts;
@@ -79,7 +79,7 @@ class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMi
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const MyAppBar(
-        title: 'Favorites',
+        title: 'Closed Posts',
         showBackButton: true,
       ),
       resizeToAvoidBottomInset: false,
@@ -110,7 +110,7 @@ class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMi
           physics: const AlwaysScrollableScrollPhysics(),
           controller: scrollController,
           child: Padding(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
             child: !hasConnection
                 ? const PageFaultScreen(
                     imagePath: 'assets/no_connection.png',
@@ -133,7 +133,35 @@ class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMi
                             title: 'No Posts',
                             description: 'Seems like there are currently no potatoes',
                           )
-                        : buildPostList(posts),
+                        : Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    'Thank you for ',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    'giving back!',
+                                    style: TextStyle(
+                                      color: appColor,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              const Divider(height: 1, thickness: 1, indent: 17, endIndent: 17),
+                              const SizedBox(height: 10),
+                              buildPostList(posts),
+                            ],
+                          ),
           ),
         ),
       ),
@@ -162,6 +190,7 @@ class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMi
             fullLocation: post.fullLocation,
             category: post.category,
             userId: post.userId,
+            closedPosts: true,
           ),
         );
 

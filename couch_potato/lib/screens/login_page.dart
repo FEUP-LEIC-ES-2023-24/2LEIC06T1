@@ -83,32 +83,20 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
 }
 
 Future<dynamic> signInWithGoogle() async {
-  /* try { */
-  GoogleSignInAccount? googleUser;
+  try {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
-  while (googleUser == null) {
-    googleUser = await GoogleSignIn(
-            scopes: ['email', 'profile', 'openid'],
-            serverClientId: '558481956553-717gvml0ql1ats1564u6m4rs7s9bu7ss.apps.googleusercontent.com')
-        .signIn();
-  }
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
 
-  GoogleSignInAuthentication? googleAuth;
-
-  while (googleAuth == null) {
-    googleAuth = await googleUser.authentication;
-  }
-
-  final credential = GoogleAuthProvider.credential(
-    accessToken: googleAuth.accessToken,
-    idToken: googleAuth.idToken,
-  );
-
-  return await FirebaseAuth.instance.signInWithCredential(credential);
-  /* } catch (e) {
+    return await FirebaseAuth.instance.signInWithCredential(credential);
+  } on Exception catch (e) {
     // TODO
-    debugPrint('exception->$e');
-  } */
+    print('exception->$e');
+  }
 }
 
 Future<bool> signOutFromGoogle() async {
