@@ -54,6 +54,12 @@ dependencies:
   firebase_storage: ^11.6.9
   auto_size_text: ^3.0.0
   shared_preferences: ^2.2.3
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/app_icon.png"
 
 dev_dependencies:
   flutter_test:
