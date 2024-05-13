@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
@@ -16,14 +17,15 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      /* systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
-          systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarIconBrightness: Brightness.dark), */
+      systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
       backgroundColor: Colors.transparent,
       elevation: 0,
-      leading: showBackButton // Conditionally show the back button
+      leading: showBackButton
           ? IconButton(
               icon: const Icon(Icons.arrow_back, color: Color(0xFF444444)),
               onPressed: () => Navigator.of(context).pop(),

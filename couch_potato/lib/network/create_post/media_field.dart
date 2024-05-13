@@ -10,7 +10,6 @@ class MediaField extends StatefulWidget {
   final Function getImageFromCamera;
   final String? imageUrl;
   final String? mediaPlaceholder;
-  final bool noMedia;
   const MediaField({
     super.key,
     required this.media,
@@ -18,7 +17,6 @@ class MediaField extends StatefulWidget {
     required this.getImageFromCamera,
     this.imageUrl,
     this.mediaPlaceholder,
-    this.noMedia = false,
   });
 
   @override
@@ -74,80 +72,68 @@ class _MediaFieldState extends State<MediaField> {
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: widget.noMedia
-                  ? const Center(
-                      child: Text(
-                        'No Media',
-                        style: TextStyle(
-                          color: Color(0xFF979797),
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Montserrat',
-                        ),
-                      ),
-                    )
-                  : widget.media == null
-                      ? IconButton(
-                          highlightColor: Colors.transparent,
-                          onPressed: () {
-                            showModalBottomSheet(
-                              showDragHandle: true,
-                              isScrollControlled: true,
-                              context: context,
-                              builder: (BuildContext context) {
-                                return Padding(
-                                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                                  child: BottomSheet(
-                                    onClosing: () {},
-                                    builder: (context) {
-                                      return Wrap(
-                                        children: <Widget>[
-                                          ListTile(
-                                            contentPadding: _contentPadding,
-                                            leading: const Icon(Icons.photo_library),
-                                            title: const Text('Select from Gallery', style: postTextStyle),
-                                            onTap: () {
-                                              widget.getImageFromGallery();
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                          ListTile(
-                                            contentPadding: _contentPadding,
-                                            leading: const Icon(Icons.photo_camera),
-                                            title: const Text(
-                                              'Take a Photo',
-                                              style: postTextStyle,
-                                            ),
-                                            onTap: () {
-                                              widget.getImageFromCamera();
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  ),
-                                );
-                              },
+              child: widget.media == null
+                  ? IconButton(
+                      highlightColor: Colors.transparent,
+                      onPressed: () {
+                        showModalBottomSheet(
+                          showDragHandle: true,
+                          isScrollControlled: true,
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Padding(
+                              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                              child: BottomSheet(
+                                onClosing: () {},
+                                builder: (context) {
+                                  return Wrap(
+                                    children: <Widget>[
+                                      ListTile(
+                                        contentPadding: _contentPadding,
+                                        leading: const Icon(Icons.photo_library),
+                                        title: const Text('Select from Gallery', style: postTextStyle),
+                                        onTap: () {
+                                          widget.getImageFromGallery();
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                      ListTile(
+                                        contentPadding: _contentPadding,
+                                        leading: const Icon(Icons.photo_camera),
+                                        title: const Text(
+                                          'Take a Photo',
+                                          style: postTextStyle,
+                                        ),
+                                        onTap: () {
+                                          widget.getImageFromCamera();
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
                             );
                           },
-                          icon: SvgPicture.asset(
-                            'assets/add_image_icon.svg',
-                            // ignore: deprecated_member_use
-                            color: const Color(0xFFDFDFDF),
-                            height: 40,
-                          ),
-                        )
-                      : AspectRatio(
-                          aspectRatio: 1 / 1,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.file(
-                              File(widget.media!.path),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
+                        );
+                      },
+                      icon: SvgPicture.asset(
+                        'assets/add_image_icon.svg',
+                        // ignore: deprecated_member_use
+                        color: const Color(0xFFDFDFDF),
+                        height: 40,
+                      ),
+                    )
+                  : AspectRatio(
+                      aspectRatio: 1 / 1,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.file(
+                          File(widget.media!.path),
+                          fit: BoxFit.cover,
                         ),
+                      ),
+                    ),
             ),
           );
   }

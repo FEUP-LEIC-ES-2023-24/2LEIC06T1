@@ -1,5 +1,7 @@
 import 'package:couch_potato/modules/card_widget.dart';
+import 'package:couch_potato/profile/closed_posts.dart';
 import 'package:couch_potato/profile/favorite_posts.dart';
+import 'package:couch_potato/profile/open_posts.dart';
 import 'package:couch_potato/profile/profile_header.dart';
 import 'package:couch_potato/profile/settings_row.dart';
 import 'package:flutter/material.dart';
@@ -30,14 +32,24 @@ class _ProfilePageState extends State<ProfilePage> {
                 SettingsRow(
                   iconPath: 'open_in_browser',
                   text: 'Open posts',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const OpenPosts()),
+                    );
+                  },
                   padding: const EdgeInsets.only(top: 10, bottom: 3),
                 ),
                 const Divider(color: Color(0xFFEBEBEB), thickness: 1, indent: 54),
                 SettingsRow(
                   iconPath: 'subtitles_off',
                   text: 'Closed posts',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ClosedPosts()),
+                    );
+                  },
                   padding: const EdgeInsets.only(top: 3, bottom: 10),
                 ),
               ],
@@ -55,9 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const FavoritePosts(),
-                      ),
+                      MaterialPageRoute(builder: (context) => const FavoritePosts()),
                     );
                   },
                   padding: const EdgeInsets.only(top: 10, bottom: 3),
