@@ -9,6 +9,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+final GlobalKey<HomePageState> homePageKey = GlobalKey<HomePageState>();
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -27,8 +29,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   bool hasConnection = true;
   bool _isLoading = true;
-
-  int numberOfPosts = 5;
 
   @override
   void initState() {
@@ -67,12 +67,34 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<void> fetchPosts() async {
-    List<Post> newPosts = await DatabaseHandler.getPosts(1);
+    List<Post> newPosts = await DatabaseHandler.getPosts();
 
     setState(() {
-      posts.addAll(newPosts);
+      posts = newPosts.reversed.toList();
       _isLoading = false;
     });
+  }
+
+  Future<void> refreshPage() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      await DatabaseHandler.fetchAndSaveFavorites();
+
+      await Future.wait([fetchPosts()]).timeout(const Duration(seconds: 5));
+      setState(() {
+        _isLoading = false;
+        hasConnection = true;
+      });
+    } catch (e) {
+      setState(() {
+        hasConnection = false;
+      });
+      return;
+    }
+    debugPrint('refreshed');
   }
 
   @override
@@ -117,25 +139,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       body: RefreshIndicator(
         color: appColor,
         onRefresh: () async {
-          try {
-            setState(() {
-              _isLoading = true;
-            });
-
-            await DatabaseHandler.fetchAndSaveFavorites();
-
-            await Future.wait([fetchPosts()]).timeout(const Duration(seconds: 5));
-            setState(() {
-              _isLoading = false;
-              hasConnection = true;
-            });
-          } catch (e) {
-            setState(() {
-              hasConnection = false;
-            });
-            return;
-          }
-          debugPrint('refreshed');
+          await refreshPage();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),

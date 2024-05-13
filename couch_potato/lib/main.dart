@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'firebase_options.dart';
-/* import 'package:flutter/services.dart'; */
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -72,7 +71,7 @@ class _MyHomeState extends State<MyHome> {
 
   final List<Widget> _pages = [
     const ChatPage(),
-    const HomePage(),
+    HomePage(key: homePageKey),
     const ProfilePage(),
   ];
 

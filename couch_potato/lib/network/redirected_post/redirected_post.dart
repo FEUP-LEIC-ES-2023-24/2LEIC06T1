@@ -6,6 +6,8 @@ import 'package:couch_potato/network/post/post_footer.dart';
 import 'package:couch_potato/network/post/post_header.dart';
 import 'package:couch_potato/network/redirected_post/close_post_info.dart';
 import 'package:couch_potato/network/redirected_post/logistics_options.dart';
+import 'package:couch_potato/screens/home_page.dart';
+import 'package:couch_potato/utils/show_pop_up.dart';
 import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:couch_potato/modules/app_bar.dart';
@@ -18,10 +20,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class RedirectedPost extends StatefulWidget {
   final String postId;
   final bool currentUserPost;
+  final String donorId;
   const RedirectedPost({
     super.key,
     required this.postId,
     required this.currentUserPost,
+    required this.donorId,
   });
 
   @override
@@ -212,11 +216,23 @@ class _RedirectedPostState extends State<RedirectedPost> {
                           elevation: 3,
                         ),
                         onPressed: () async {
-                          Navigator.pop(context);
                           if (widget.currentUserPost) {
+                            Navigator.pop(context);
                             await DatabaseHandler.closePost(widget.postId);
                           } else {
-                            debugPrint('acquire item'); //TODO: Acquire item function
+                            showLoadingSheet(
+                              context,
+                              true,
+                              isAcquisition: true,
+                            );
+                            String logistics = _logistics == Logistics.user ? 'user' : 'couch_potato';
+                            await DatabaseHandler.acquire(widget.postId, widget.donorId, logistics);
+
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                              homePageKey.currentState?.refreshPage();
+                            }
                           }
                         },
                         child: Text(
