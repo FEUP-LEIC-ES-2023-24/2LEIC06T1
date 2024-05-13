@@ -3,7 +3,6 @@ import 'package:couch_potato/classes/post.dart';
 import 'package:couch_potato/modules/app_bar.dart';
 import 'package:couch_potato/modules/page_fault_screen.dart';
 import 'package:couch_potato/network/database_handler.dart';
-import 'package:couch_potato/network/post/social_post.dart';
 import 'package:couch_potato/network/redirected_post/redirected_post.dart';
 import 'package:couch_potato/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';

@@ -77,7 +77,7 @@ class _CategoryFieldState extends State<CategoryField> {
               widget.onSubmitted(value);
             },
           ),
-        )
+        ),
       ],
     );
   }

@@ -30,6 +30,17 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool hasConnection = true;
   bool _isLoading = true;
 
+  String _category = 'Uncategorized';
+
+  final List<String> categoryList = [
+    'Uncategorized',
+    'Furniture',
+    'Electronics',
+    'Clothing',
+    'Books',
+    'Other',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -75,7 +86,16 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     });
   }
 
-  Future<void> refreshPage() async {
+  Future<void> fetchCategorizedPosts(String category) async {
+    List<Post> newPosts = await DatabaseHandler.fetchCategorizedPosts(category);
+
+    setState(() {
+      posts = newPosts.reversed.toList();
+      _isLoading = false;
+    });
+  }
+
+  Future<void> refreshPage({String? category}) async {
     try {
       setState(() {
         _isLoading = true;
@@ -83,7 +103,12 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
       await DatabaseHandler.fetchAndSaveFavorites();
 
-      await Future.wait([fetchPosts()]).timeout(const Duration(seconds: 5));
+      if (category == null || category == 'Uncategorized') {
+        await Future.wait([fetchPosts()]).timeout(const Duration(seconds: 5));
+      } else if (category != 'Uncategorized') {
+        await Future.wait([fetchCategorizedPosts(category)]).timeout(const Duration(seconds: 5));
+      }
+
       setState(() {
         _isLoading = false;
         hasConnection = true;
@@ -168,9 +193,61 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             title: 'No Posts',
                             description: 'Seems like there are currently no potatoes',
                           )
-                        : buildPostList(posts),
+                        : Column(
+                            children: [
+                              categorySearch(),
+                              buildPostList(posts),
+                            ],
+                          ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget categorySearch() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: const Color(0xFFDFDFDF),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: DropdownButtonFormField(
+        padding: const EdgeInsets.only(right: 15),
+        style: const TextStyle(
+          color: Color(0xFF555555),
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Montserrat',
+        ),
+        decoration: InputDecoration(
+          prefixIcon: Icon(Icons.search, color: appColor, size: 25),
+          hintText: 'Category',
+          hintStyle: const TextStyle(
+            color: Color(0xFFBEBEBE),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            fontFamily: 'Montserrat',
+          ),
+          border: InputBorder.none,
+        ),
+        iconEnabledColor: appColor,
+        iconDisabledColor: appColor,
+        value: _category,
+        items: categoryList.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+        onChanged: (value) async {
+          setState(() {
+            _category = value ?? 'Uncategorized';
+          });
+          await refreshPage(category: value);
+        },
       ),
     );
   }

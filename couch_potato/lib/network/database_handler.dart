@@ -234,4 +234,32 @@ class DatabaseHandler {
       'status': status,
     });
   }
+
+  static Future<List<Post>> fetchCategorizedPosts(String category) async {
+    List<Post> posts = [];
+
+    await db.collection("posts").where('isActive', isEqualTo: true).where('category', isEqualTo: category).get().then((event) {
+      debugPrint("Posts: ${event.docs.length}:");
+      for (var item in event.docs) {
+        debugPrint("Post: ${item.id} => ${item.data()}");
+
+        Post post = Post(
+          postId: item.id,
+          username: item.data()['username'],
+          createdAt: item.data()['createdAt'],
+          profileImageUrl: item.data()['profileImageUrl'],
+          description: item.data()['description'],
+          mediaUrl: item.data()['mediaUrl'],
+          mediaPlaceholder: item.data()['mediaPlaceholder'],
+          fullLocation: item.data()['fullLocation'],
+          category: item.data()['category'],
+          userId: item.data()['userId'],
+        );
+
+        posts.add(post);
+      }
+    });
+
+    return posts;
+  }
 }
