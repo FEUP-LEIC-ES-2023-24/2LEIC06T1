@@ -16,7 +16,7 @@ class _ChatListPageState extends State<ChatListPage> {
   Widget build(BuildContext context) {
 
     return FutureBuilder<List<Chat>>(
-      future: DatabaseHandler.getChats(FirebaseAuth.instance!.currentUser!.uid!),
+      future: DatabaseHandler.getChats(FirebaseAuth.instance.currentUser!.uid),
       builder: (BuildContext context, AsyncSnapshot<List<Chat>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // While data is loading, show a loading indicator or placeholder

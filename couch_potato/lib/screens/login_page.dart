@@ -63,21 +63,9 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
                           )
                         )
                       ),
-                      const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text(
-                          'Sign in with google',
-                          style: TextStyle(fontSize: 20.0),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
+                    );
+            }
+        ),
     );
   }
 }
