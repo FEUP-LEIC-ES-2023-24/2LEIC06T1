@@ -1,4 +1,5 @@
 import 'package:couch_potato/modules/card_widget.dart';
+import 'package:couch_potato/profile/acquired_items.dart';
 import 'package:couch_potato/profile/closed_posts.dart';
 import 'package:couch_potato/profile/favorite_posts.dart';
 import 'package:couch_potato/profile/open_posts.dart';
@@ -76,7 +77,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 SettingsRow(
                   iconPath: 'assets/place_item.svg',
                   text: 'Acquired items',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AcquiredItems()),
+                    );
+                  },
                   padding: const EdgeInsets.only(top: 3, bottom: 10),
                 ),
               ],
