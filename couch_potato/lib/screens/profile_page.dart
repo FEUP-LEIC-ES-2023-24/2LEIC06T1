@@ -88,6 +88,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
+          const SizedBox(height: 50),
+          Image.asset('assets/app_icon.png', height: 240, width: 240),
         ],
       ),
     );
