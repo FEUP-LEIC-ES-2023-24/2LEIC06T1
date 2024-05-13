@@ -212,8 +212,12 @@ class _RedirectedPostState extends State<RedirectedPost> {
                           elevation: 3,
                         ),
                         onPressed: () async {
-                          //TODO: Acquire item function
-                          //TODO: Close post function
+                          Navigator.pop(context);
+                          if (widget.currentUserPost) {
+                            await DatabaseHandler.closePost(widget.postId);
+                          } else {
+                            debugPrint('acquire item'); //TODO: Acquire item function
+                          }
                         },
                         child: Text(
                           widget.currentUserPost ? 'Close Post' : 'Acquire',

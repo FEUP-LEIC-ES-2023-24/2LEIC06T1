@@ -216,4 +216,8 @@ class DatabaseHandler {
 
     return openPosts;
   }
+
+  static Future<void> closePost(String postId) async {
+    await db.collection("posts").doc(postId).update({'isActive': false});
+  }
 }

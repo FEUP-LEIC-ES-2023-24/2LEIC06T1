@@ -24,6 +24,7 @@ class SocialPost extends StatefulWidget {
   final String fullLocation;
   final String category;
   final String userId;
+  final bool closedPosts;
   const SocialPost({
     super.key,
     required this.profileImageUrl,
@@ -36,6 +37,7 @@ class SocialPost extends StatefulWidget {
     required this.fullLocation,
     required this.category,
     required this.userId,
+    this.closedPosts = false,
   });
 
   @override
@@ -145,15 +147,17 @@ class _SocialPostState extends State<SocialPost> with SingleTickerProviderStateM
       duration: const Duration(milliseconds: 300),
       child: GestureDetector(
         onTap: () {
-          String userId = FirebaseAuth.instance.currentUser!.uid;
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => RedirectedPost(
-                postId: widget.postId,
-                currentUserPost: widget.userId == userId,
+          if (!widget.closedPosts) {
+            String userId = FirebaseAuth.instance.currentUser!.uid;
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => RedirectedPost(
+                  postId: widget.postId,
+                  currentUserPost: widget.userId == userId,
+                ),
               ),
-            ),
-          );
+            );
+          }
         },
         child: CardWidget(
           padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),

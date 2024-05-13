@@ -157,6 +157,8 @@ class ClosedPostsState extends State<ClosedPosts> with TickerProviderStateMixin 
                                 ],
                               ),
                               const SizedBox(height: 10),
+                              const Divider(height: 1, thickness: 1, indent: 17, endIndent: 17),
+                              const SizedBox(height: 10),
                               buildPostList(posts),
                             ],
                           ),
@@ -188,6 +190,7 @@ class ClosedPostsState extends State<ClosedPosts> with TickerProviderStateMixin 
             fullLocation: post.fullLocation,
             category: post.category,
             userId: post.userId,
+            closedPosts: true,
           ),
         );
 
