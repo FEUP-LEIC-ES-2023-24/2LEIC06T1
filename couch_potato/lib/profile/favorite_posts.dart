@@ -39,7 +39,7 @@ class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMi
     scrollController = ScrollController();
     setUpScrollController(scrollController);
 
-    fetchPosts();
+    fetchFavoritePosts();
   }
 
   void setUpScrollController(ScrollController controller) {
@@ -59,7 +59,7 @@ class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMi
     });
   }
 
-  Future<void> fetchPosts() async {
+  Future<void> fetchFavoritePosts() async {
     List<Post> newPosts = await DatabaseHandler.fetchFavoritePosts();
 
     setState(() {
@@ -93,7 +93,7 @@ class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMi
 
             await DatabaseHandler.fetchAndSaveFavorites();
 
-            await Future.wait([fetchPosts()]).timeout(const Duration(seconds: 5));
+            await Future.wait([fetchFavoritePosts()]).timeout(const Duration(seconds: 5));
             setState(() {
               _isLoading = false;
               hasConnection = true;

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couch_potato/classes/post.dart';
-import 'package:couch_potato/classes/chatMessage.dart';
+import 'package:couch_potato/classes/chat_message.dart';
 import 'package:couch_potato/classes/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -169,7 +169,7 @@ class DatabaseHandler {
       'timestamp': message.timestamp,
     });
   }
-  
+
   static Future<void> fetchAndSaveFavorites() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
@@ -268,13 +268,31 @@ class DatabaseHandler {
     await db.collection("posts").doc(postId).update({'isActive': false});
   }
 
-  static Future<void> acquire(String postId, String donorId, String logistics) async {
-    if (logistics == 'couch_potato') {
-      await db.collection("posts").doc(postId).update({'isActive': false});
-    }
-
+  static Future<void> acquire(
+      String postId, String donorId, String logistics, String donorName, String donorProfilePicUrl) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
     String status = logistics == 'couch_potato' ? 'acquired' : 'pending';
+
+    if (logistics == 'couch_potato') {
+      await db.collection("posts").doc(postId).update({'isActive': false});
+    } else {
+      List<Chat> chats = await getChats(userId);
+
+      bool chatExists = false;
+      for (Chat chat in chats) {
+        if (chat.userId == donorId) {
+          chatExists = true;
+          break;
+        }
+      }
+
+      if (!chatExists) {
+        await createChat(donorId, donorName, donorProfilePicUrl);
+      } else {
+        debugPrint('Chat already exists');
+      }
+    }
+
     await db.collection('acquisitions').add({
       'postId': postId,
       'donorId': donorId,
@@ -287,7 +305,12 @@ class DatabaseHandler {
   static Future<List<Post>> fetchCategorizedPosts(String category) async {
     List<Post> posts = [];
 
-    await db.collection("posts").where('isActive', isEqualTo: true).where('category', isEqualTo: category).get().then((event) {
+    await db
+        .collection("posts")
+        .where('isActive', isEqualTo: true)
+        .where('category', isEqualTo: category)
+        .get()
+        .then((event) {
       debugPrint("Posts: ${event.docs.length}:");
       for (var item in event.docs) {
         debugPrint("Post: ${item.id} => ${item.data()}");
@@ -310,5 +333,18 @@ class DatabaseHandler {
     });
 
     return posts;
+  }
+
+  static Future<void> createChat(String userId, String userName, String userPhoto) async {
+    String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+    await db.collection("chats").add({
+      'user1Id': currentUserId,
+      'user1Name': FirebaseAuth.instance.currentUser!.displayName,
+      'user1Photo': FirebaseAuth.instance.currentUser!.photoURL,
+      'user2Id': userId,
+      'user2Name': userName,
+      'user2Photo': userPhoto,
+    });
   }
 }

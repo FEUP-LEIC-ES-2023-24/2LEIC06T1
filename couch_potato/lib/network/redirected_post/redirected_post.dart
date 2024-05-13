@@ -80,7 +80,6 @@ class _RedirectedPostState extends State<RedirectedPost> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: MyAppBar(title: widget.acquiredItem ? 'Item' : 'Post', showBackButton: true),
       body: _isLoading || post == null
@@ -234,7 +233,7 @@ class _RedirectedPostState extends State<RedirectedPost> {
                                 isAcquisition: true,
                               );
                               String logistics = _logistics == Logistics.user ? 'user' : 'couch_potato';
-                              await DatabaseHandler.acquire(widget.postId, widget.donorId, logistics);
+                              await DatabaseHandler.acquire(widget.postId, widget.donorId, logistics, post!.username, post!.profileImageUrl);
 
                               if (context.mounted) {
                                 Navigator.pop(context);
@@ -244,7 +243,11 @@ class _RedirectedPostState extends State<RedirectedPost> {
                             }
                           },
                           child: Text(
-                            widget.currentUserPost ? 'Close Post' : 'Acquire',
+                            widget.currentUserPost
+                                ? 'Close Post'
+                                : _logistics == Logistics.user
+                                    ? 'Message Owner'
+                                    : 'Acquire',
                             style: const TextStyle(
                               color: Color(0xFFFFFFFF),
                               fontSize: 22,

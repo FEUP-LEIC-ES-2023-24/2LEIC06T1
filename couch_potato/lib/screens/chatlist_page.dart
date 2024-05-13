@@ -20,10 +20,10 @@ class _ChatListPageState extends State<ChatListPage> {
       builder: (BuildContext context, AsyncSnapshot<List<Chat>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // While data is loading, show a loading indicator or placeholder
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           // If an error occurs during data fetching, display an error message
-          return Center(child: Text('Error loading data'));
+          return const Center(child: Text('Error loading data'));
         } else {
           // Once data is loaded successfully, display the list of chats
           List<Chat> chats = snapshot.data!;
@@ -32,7 +32,7 @@ class _ChatListPageState extends State<ChatListPage> {
             body: ListView.separated(
               itemCount: chats.length,
               separatorBuilder: (BuildContext context, int index) {
-                return Divider(
+                return const Divider(
                   color: Colors.black,
                   thickness: 1.0,
                 );
@@ -51,7 +51,7 @@ class _ChatListPageState extends State<ChatListPage> {
 class ChatElementWidget extends StatelessWidget {
   final Chat chat;
 
-  ChatElementWidget({required this.chat});
+  const ChatElementWidget({super.key, required this.chat});
 
   @override
   Widget build(BuildContext context) {
@@ -60,9 +60,8 @@ class ChatElementWidget extends StatelessWidget {
         backgroundImage: NetworkImage(chat.userPhoto),
       ),
       title: Text(chat.userName),
-      subtitle: Text('tap to view messages'), // You can add message text here
+      subtitle: const Text('tap to view messages'), // You can add message text here
       onTap: () {
-        print("tapped");
         Navigator.pushNamed(context, '/chat', arguments: chat);
       },
     );
