@@ -15,55 +15,57 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: null,
-      body: ValueListenableBuilder(
-        valueListenable: userCredential,
-        builder: (context, value, child) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                child: ElevatedButton(
-                  onPressed: () async {
-                    userCredential.value = await signInWithGoogle();
-                    if (userCredential.value != null) {
-                      debugPrint(userCredential.value.user!.email);
-                    }
-                    if (mounted) {
-                      Navigator.pushNamed(context, '/home');
-                    }
-                  },
-                  child: Row(
-                    children: [
-                      IconButton(
-                        iconSize: 40,
-                        icon: Image.asset(
-                          'assets/google_icon.png',
-                        ),
-                        onPressed: () async {
-                          userCredential.value = await signInWithGoogle();
-                          if (userCredential.value != null) {
-                            debugPrint(userCredential.value.user!.email);
-                          }
-                        },
+        bottomNavigationBar: null,
+        body: ValueListenableBuilder(
+            valueListenable: userCredential,
+            builder: (context, value, child) {
+              return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Card(
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              userCredential.value = await signInWithGoogle();
+                              if (userCredential.value != null)
+                                print(userCredential.value.user!.email);
+                                print("popo");
+                                print(FirebaseAuth.instance.currentUser);
+                                Navigator.pushNamed(context, '/home', arguments: {FirebaseAuth.instance.currentUser});  
+                            },
+                          
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  iconSize: 40,
+                                  icon: Image.asset(
+                                    'assets/google_icon.png',
+                                  ),
+                                  onPressed: () async {
+                                    userCredential.value = await signInWithGoogle();
+                                    if (userCredential.value != null){
+                                      print(userCredential.value.user!.email);
+                                    }
+                                  },
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Text(
+                                    'Sign in with google',
+                                    style: TextStyle(fontSize: 20.0),
+                                  ),
+                                )
+                              ]
+                            )
+                          )
+                        )
                       ),
-                      const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text(
-                          'Sign in with google',
-                          style: TextStyle(fontSize: 20.0),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
+                    );
+            }
+        ),
     );
   }
 }

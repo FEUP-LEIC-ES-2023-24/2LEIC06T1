@@ -11,6 +11,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 final GlobalKey<HomePageState> homePageKey = GlobalKey<HomePageState>();
 
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -106,6 +107,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       floatingActionButton: AnimatedBuilder(
           animation: _animationController,

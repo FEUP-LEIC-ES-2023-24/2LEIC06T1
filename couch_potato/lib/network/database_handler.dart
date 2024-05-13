@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couch_potato/classes/post.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:couch_potato/classes/chatMessage.dart';
+import 'package:couch_potato/classes/chat.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
@@ -121,6 +123,53 @@ class DatabaseHandler {
     return post;
   }
 
+  static Future<List<Chat>> getChats(String userId) async {
+    List<Chat> chats = [];
+
+    await db.collection("chats").where('user1Id', isEqualTo: userId).get().then((event) {
+      debugPrint("Chats - ${event.docs.length}:");
+      for (var item in event.docs) {
+        debugPrint("${item.id} => ${item.data()}");
+
+        Chat chat = Chat(
+          id: item.id,
+          userId: item.data()['user2Id'],
+          userName: item.data()['user2Name'],
+          userPhoto: item.data()['user2Photo'],
+        );
+
+        chats.add(chat);
+      }
+    });
+
+    await db.collection("chats").where('user2Id', isEqualTo: userId).get().then((event) {
+      debugPrint("Chats - ${event.docs.length}:");
+      for (var item in event.docs) {
+        debugPrint("${item.id} => ${item.data()}");
+
+        Chat chat = Chat(
+          id: item.id,
+          userId: item.data()['user1Id'],
+          userName: item.data()['user1Name'],
+          userPhoto: item.data()['user1Photo'],
+        );
+
+        chats.add(chat);
+      }
+    });
+
+    return chats;
+  }
+
+  static Future<void> sendMessage(ChatMessage message) async {
+    await db.collection("messages").add({
+      'chatId': message.chatId,
+      'senderId': message.senderId,
+      'text': message.text,
+      'timestamp': message.timestamp,
+    });
+  }
+  
   static Future<void> fetchAndSaveFavorites() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {

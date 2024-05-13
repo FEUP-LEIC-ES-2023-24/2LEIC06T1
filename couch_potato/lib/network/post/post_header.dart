@@ -42,6 +42,7 @@ class _PostHeaderState extends State<PostHeader> {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //onPressed: () {print('\nn\n post owner pressed');}
       children: [
         Transform.translate(
           offset: const Offset(-5, 0),
