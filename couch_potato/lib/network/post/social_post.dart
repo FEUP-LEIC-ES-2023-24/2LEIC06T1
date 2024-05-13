@@ -154,6 +154,7 @@ class _SocialPostState extends State<SocialPost> with SingleTickerProviderStateM
                 builder: (context) => RedirectedPost(
                   postId: widget.postId,
                   currentUserPost: widget.userId == userId,
+                  donorId: widget.userId,
                 ),
               ),
             );

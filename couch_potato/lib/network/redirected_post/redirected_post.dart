@@ -4,8 +4,10 @@ import 'package:couch_potato/classes/post.dart';
 import 'package:couch_potato/network/database_handler.dart';
 import 'package:couch_potato/network/post/post_footer.dart';
 import 'package:couch_potato/network/post/post_header.dart';
-import 'package:couch_potato/network/redirected_post/close_post_info.dart';
+import 'package:couch_potato/network/redirected_post/post_info.dart';
 import 'package:couch_potato/network/redirected_post/logistics_options.dart';
+import 'package:couch_potato/screens/home_page.dart';
+import 'package:couch_potato/utils/show_pop_up.dart';
 import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:couch_potato/modules/app_bar.dart';
@@ -18,10 +20,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class RedirectedPost extends StatefulWidget {
   final String postId;
   final bool currentUserPost;
+  final String donorId;
+  final bool acquiredItem;
   const RedirectedPost({
     super.key,
     required this.postId,
     required this.currentUserPost,
+    required this.donorId,
+    this.acquiredItem = false,
   });
 
   @override
@@ -76,7 +82,7 @@ class _RedirectedPostState extends State<RedirectedPost> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: const MyAppBar(title: 'Post', showBackButton: true),
+      appBar: MyAppBar(title: widget.acquiredItem ? 'Item' : 'Post', showBackButton: true),
       body: _isLoading || post == null
           ? Center(
               child: SizedBox(
@@ -170,7 +176,10 @@ class _RedirectedPostState extends State<RedirectedPost> {
                           ),
                           const SizedBox(height: 15),
                           widget.currentUserPost
-                              ? ClosePostInfo(category: post!.category)
+                              ? PostInfo(
+                                  category: post!.category,
+                                  acquiredItem: widget.acquiredItem,
+                                )
                               : SizedBox(
                                   height: 100,
                                   child: Transform.translate(
@@ -182,58 +191,71 @@ class _RedirectedPostState extends State<RedirectedPost> {
                                     }),
                                   ),
                                 ),
-                          const SizedBox(height: 86),
+                          if (!widget.acquiredItem) const SizedBox(height: 86),
                         ],
                       ),
                     ),
                   ),
-                  Positioned(
-                    bottom: 0,
-                    child: Container(
-                      height: 86,
-                      width: MediaQuery.of(context).size.width,
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.white,
-                            blurRadius: 10,
-                            spreadRadius: 0.2,
-                            offset: Offset(0, -12),
-                          ),
-                        ],
-                      ),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          backgroundColor: appColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(13),
-                          ),
-                          elevation: 3,
+                  if (!widget.acquiredItem)
+                    Positioned(
+                      bottom: 0,
+                      child: Container(
+                        height: 86,
+                        width: MediaQuery.of(context).size.width,
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.white,
+                              blurRadius: 10,
+                              spreadRadius: 0.2,
+                              offset: Offset(0, -12),
+                            ),
+                          ],
                         ),
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          if (widget.currentUserPost) {
-                            await DatabaseHandler.closePost(widget.postId);
-                          } else {
-                            debugPrint('acquire item'); //TODO: Acquire item function
-                          }
-                        },
-                        child: Text(
-                          widget.currentUserPost ? 'Close Post' : 'Acquire',
-                          style: const TextStyle(
-                            color: Color(0xFFFFFFFF),
-                            fontSize: 22,
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.28,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            backgroundColor: appColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(13),
+                            ),
+                            elevation: 3,
+                          ),
+                          onPressed: () async {
+                            if (widget.currentUserPost) {
+                              Navigator.pop(context);
+                              await DatabaseHandler.closePost(widget.postId);
+                            } else {
+                              showLoadingSheet(
+                                context,
+                                true,
+                                isAcquisition: true,
+                              );
+                              String logistics = _logistics == Logistics.user ? 'user' : 'couch_potato';
+                              await DatabaseHandler.acquire(widget.postId, widget.donorId, logistics);
+
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                                homePageKey.currentState?.refreshPage();
+                              }
+                            }
+                          },
+                          child: Text(
+                            widget.currentUserPost ? 'Close Post' : 'Acquire',
+                            style: const TextStyle(
+                              color: Color(0xFFFFFFFF),
+                              fontSize: 22,
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.28,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),

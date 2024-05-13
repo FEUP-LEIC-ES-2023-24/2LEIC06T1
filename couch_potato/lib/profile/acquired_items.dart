@@ -1,32 +1,29 @@
+import 'package:blurhash_ffi/blurhashffi_widget.dart';
 import 'package:couch_potato/classes/post.dart';
+import 'package:couch_potato/modules/app_bar.dart';
 import 'package:couch_potato/modules/page_fault_screen.dart';
-import 'package:couch_potato/network/create_post/create_post_page.dart';
 import 'package:couch_potato/network/database_handler.dart';
 import 'package:couch_potato/network/post/social_post.dart';
+import 'package:couch_potato/network/redirected_post/redirected_post.dart';
 import 'package:couch_potato/utils/utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-final GlobalKey<HomePageState> homePageKey = GlobalKey<HomePageState>();
-
-
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class AcquiredItems extends StatefulWidget {
+  const AcquiredItems({super.key});
 
   @override
-  HomePageState createState() => HomePageState();
+  AcquiredItemsState createState() => AcquiredItemsState();
 }
 
-class HomePageState extends State<HomePage> with TickerProviderStateMixin {
+class AcquiredItemsState extends State<AcquiredItems> with TickerProviderStateMixin {
   List<Post> posts = [];
 
   late ScrollController scrollController;
 
   late AnimationController _animationController;
-  late Animation<double> _opacityAnimation;
-  late Animation<double> _translateAnimation;
 
   bool hasConnection = true;
   bool _isLoading = true;
@@ -42,8 +39,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
     setHasConnection();
 
-    _opacityAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(_animationController);
-    _translateAnimation = Tween<double>(begin: 0.0, end: 20.0).animate(_animationController);
     scrollController = ScrollController();
     setUpScrollController(scrollController);
 
@@ -68,34 +63,12 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<void> fetchPosts() async {
-    List<Post> newPosts = await DatabaseHandler.getPosts();
+    List<Post> newPosts = await DatabaseHandler.fetchUserPosts(true);
 
     setState(() {
-      posts = newPosts.reversed.toList();
+      posts = newPosts;
       _isLoading = false;
     });
-  }
-
-  Future<void> refreshPage() async {
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-
-      await DatabaseHandler.fetchAndSaveFavorites();
-
-      await Future.wait([fetchPosts()]).timeout(const Duration(seconds: 5));
-      setState(() {
-        _isLoading = false;
-        hasConnection = true;
-      });
-    } catch (e) {
-      setState(() {
-        hasConnection = false;
-      });
-      return;
-    }
-    debugPrint('refreshed');
   }
 
   @override
@@ -107,41 +80,34 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      floatingActionButton: AnimatedBuilder(
-          animation: _animationController,
-          builder: (context, child) {
-            return Opacity(
-              opacity: _opacityAnimation.value,
-              child: Transform.translate(
-                offset: Offset(0, _translateAnimation.value),
-                child: Transform.scale(
-                  scale: 0.9,
-                  child: FloatingActionButton(
-                    onPressed: () async {
-                      if (await hasInternetConnection() && mounted) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const CreatePostPage()),
-                        );
-                      }
-                      HapticFeedback.selectionClick();
-                    },
-                    foregroundColor: Colors.white,
-                    backgroundColor: appColor,
-                    shape: const CircleBorder(),
-                    child: const Icon(Icons.add, size: 35),
-                  ),
-                ),
-              ),
-            );
-          }),
+      appBar: const MyAppBar(
+        title: 'Acquired Items',
+        showBackButton: true,
+      ),
       resizeToAvoidBottomInset: false,
       body: RefreshIndicator(
         color: appColor,
         onRefresh: () async {
-          await refreshPage();
+          try {
+            setState(() {
+              _isLoading = true;
+            });
+
+            await DatabaseHandler.fetchAndSaveFavorites();
+
+            await Future.wait([fetchPosts()]).timeout(const Duration(seconds: 5));
+            setState(() {
+              _isLoading = false;
+              hasConnection = true;
+            });
+          } catch (e) {
+            setState(() {
+              hasConnection = false;
+            });
+            return;
+          }
+          debugPrint('refreshed');
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -185,20 +151,47 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       itemBuilder: (context, index) {
         Post post = posts[index];
 
-        Widget postWidget = Padding(
-          padding: const EdgeInsets.symmetric(vertical: 7),
-          child: SocialPost(
-            key: ValueKey(post.postId),
-            postId: post.postId,
-            name: post.username,
-            timestamp: timeDelta(post.createdAt),
-            profileImageUrl: post.profileImageUrl,
-            text: post.description,
-            imageUrl: post.mediaUrl,
-            mediaPlaceholder: post.mediaPlaceholder,
-            fullLocation: post.fullLocation,
-            category: post.category,
-            userId: post.userId,
+        TextStyle textStyle = const TextStyle(
+          color: Color(0xFF555555),
+          fontSize: 14,
+          fontFamily: 'Montserrat',
+          fontWeight: FontWeight.w500,
+        );
+
+        Widget postWidget = Card(
+          child: GestureDetector(
+            onTap: () {
+              String userId = FirebaseAuth.instance.currentUser!.uid;
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => RedirectedPost(
+                    postId: post.postId,
+                    currentUserPost: post.userId == userId,
+                    donorId: post.userId,
+                    acquiredItem: true,
+                  ),
+                ),
+              );
+            },
+            child: ListTile(
+              leading: SizedBox(
+                height: 72,
+                width: 72,
+                child: BlurhashFfi(
+                  key: ValueKey(post.mediaUrl),
+                  hash: post.mediaPlaceholder,
+                  image: post.mediaUrl,
+                  imageFit: BoxFit.cover,
+                ),
+              ),
+              title: Text(post.category, style: textStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 16)),
+              subtitle: Text(post.description, style: textStyle),
+              trailing: const Icon(
+                Icons.arrow_forward_ios,
+                size: 23,
+                color: Color(0xFF777777),
+              ),
+            ),
           ),
         );
 

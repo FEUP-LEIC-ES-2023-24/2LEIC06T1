@@ -4,6 +4,7 @@ import 'package:couch_potato/classes/post.dart';
 import 'package:couch_potato/network/create_post/category_field.dart';
 import 'package:couch_potato/network/create_post/location_field.dart';
 import 'package:couch_potato/network/database_handler.dart';
+import 'package:couch_potato/screens/home_page.dart';
 import 'package:couch_potato/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -191,6 +192,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         if (mounted) {
           Navigator.pop(context);
           Navigator.pop(context);
+          homePageKey.currentState?.refreshPage();
         }
       } catch (e) {
         if (mounted && e is ShowableError) {

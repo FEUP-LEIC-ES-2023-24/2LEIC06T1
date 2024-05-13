@@ -39,12 +39,10 @@ class DatabaseHandler {
     }
   }
 
-  static Future<List<Post>> getPosts(int count) async {
-    //TODO fetch n posts
-    //TODO fetch only new posts
+  static Future<List<Post>> getPosts() async {
     List<Post> posts = [];
 
-    await db.collection("posts").get().then((event) {
+    await db.collection("posts").where('isActive', isEqualTo: true).get().then((event) {
       debugPrint("Posts: ${event.docs.length}:");
       for (var item in event.docs) {
         debugPrint("Post: ${item.id} => ${item.data()}");
@@ -268,5 +266,21 @@ class DatabaseHandler {
 
   static Future<void> closePost(String postId) async {
     await db.collection("posts").doc(postId).update({'isActive': false});
+  }
+
+  static Future<void> acquire(String postId, String donorId, String logistics) async {
+    if (logistics == 'couch_potato') {
+      await db.collection("posts").doc(postId).update({'isActive': false});
+    }
+
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    String status = logistics == 'couch_potato' ? 'acquired' : 'pending';
+    await db.collection('acquisitions').add({
+      'postId': postId,
+      'donorId': donorId,
+      'logistics': logistics,
+      'receiverId': userId,
+      'status': status,
+    });
   }
 }

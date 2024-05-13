@@ -137,7 +137,7 @@ Future<bool> showPopUp(
   return completer.future;
 }
 
-void showLoadingSheet(BuildContext context, bool isImage) {
+void showLoadingSheet(BuildContext context, bool isImage, {bool isAcquisition = false}) {
   showModalBottomSheet(
     showDragHandle: true,
     isScrollControlled: true,
@@ -145,10 +145,10 @@ void showLoadingSheet(BuildContext context, bool isImage) {
     enableDrag: false,
     context: context,
     builder: (BuildContext context) {
-      String loadingText = 'Checking for unallowed content';
+      String loadingText = isAcquisition ? 'Confirming your order' : 'Checking for unallowed content';
 
       return StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
-        if (isImage) {
+        if (isImage && !isAcquisition) {
           Future.delayed(const Duration(seconds: 2), () {
             if (context.mounted) {
               setState(() {
