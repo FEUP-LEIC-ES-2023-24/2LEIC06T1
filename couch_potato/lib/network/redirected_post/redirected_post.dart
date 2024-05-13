@@ -30,6 +30,7 @@ class _RedirectedPostState extends State<RedirectedPost> {
   double opacity = 0.0;
 
   bool isFavorite = false;
+
   Post? post;
   Logistics _logistics = Logistics.user;
 
@@ -70,6 +71,7 @@ class _RedirectedPostState extends State<RedirectedPost> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: const MyAppBar(title: 'Post', showBackButton: true),
       body: _isLoading || post == null
