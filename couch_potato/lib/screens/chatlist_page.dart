@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:couch_potato/network/database_handler.dart';
 import 'package:couch_potato/classes/chat.dart';
+import 'package:couch_potato/modules/page_fault_screen.dart';
+
 
 class ChatListPage extends StatefulWidget {
   const ChatListPage({super.key});
@@ -27,6 +29,14 @@ class _ChatListPageState extends State<ChatListPage> {
         } else {
           // Once data is loaded successfully, display the list of chats
           List<Chat> chats = snapshot.data!;
+
+          if(chats.length == 0)
+            return PageFaultScreen(
+                    imagePath: 'assets/app_icon.png',
+                    title: 'No chats available',
+                    description: "Acquire an item through a post to contact the owner",
+            );
+
           return Scaffold(
             appBar: null,
             body: ListView.separated(

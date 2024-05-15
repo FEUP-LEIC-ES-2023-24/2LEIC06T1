@@ -4,6 +4,8 @@ import 'package:couch_potato/network/database_handler.dart';
 import 'package:couch_potato/classes/chatMessage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couch_potato/classes/chat.dart';
+import 'package:couch_potato/modules/page_fault_screen.dart';
+
 
 
 class ChatPage extends StatefulWidget {
@@ -22,6 +24,9 @@ class _ChatPageState extends State<ChatPage> {
 
 
   void _handleSubmit(String text) {
+
+    if(text == "") return;
+
     _controller.clear();
     
     String senderId = "";
@@ -40,7 +45,7 @@ class _ChatPageState extends State<ChatPage> {
       timestamp: Timestamp.now()
     );
     setState(() {
-      _messages.insert(0, message);
+        _messages.insert(0, message);
     });
     DatabaseHandler.sendMessage(message); //firestore
   }
@@ -71,10 +76,28 @@ class _ChatPageState extends State<ChatPage> {
           ],
         ),
       ),
-      body: Column(
+      body: Column( 
         children: [
           Expanded(
-            child: _buildMessagesStream(chat),
+            child: _messages.length == 0
+                ? Container(
+                  //margin: EdgeInsets.only(bottom: 100.0);
+                  child: Transform.translate(
+                    offset: Offset(0.0, -100.0),
+                    child: Opacity(
+                        opacity: 0.5,  
+                        child: Transform.scale(
+                          scale: 0.5,  // Specify the scale factor
+                          child: PageFaultScreen(
+                            imagePath: 'assets/app_icon.png',
+                            title: 'No Messages',
+                            description: "Send a message. Dont be a couch potato",
+                        ),
+                      )
+                    )
+                  ),
+                )    
+                : _buildMessagesStream(chat),
           ),
           Divider(height: 1.0),
           Container(
