@@ -4,6 +4,8 @@ import 'package:couch_potato/network/database_handler.dart';
 import 'package:couch_potato/classes/chat_message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couch_potato/classes/chat.dart';
+import 'package:couch_potato/modules/page_fault_screen.dart';
+
 
 class ChatPage extends StatefulWidget {
   final Chat chat;
@@ -18,6 +20,9 @@ class _ChatPageState extends State<ChatPage> {
   final List<ChatMessage> _messages = [];
 
   void _handleSubmit(String text) {
+
+    if(text == "") return;
+
     _controller.clear();
 
     String senderId = "";
@@ -30,7 +35,7 @@ class _ChatPageState extends State<ChatPage> {
 
     ChatMessage message = ChatMessage(chatId: chatId, senderId: senderId, text: text, timestamp: Timestamp.now());
     setState(() {
-      _messages.insert(0, message);
+        _messages.insert(0, message);
     });
     DatabaseHandler.sendMessage(message); //firestore
   }
@@ -57,7 +62,7 @@ class _ChatPageState extends State<ChatPage> {
           ],
         ),
       ),
-      body: Column(
+      body: Column( 
         children: [
           Expanded(
             child: _buildMessagesStream(widget.chat),
