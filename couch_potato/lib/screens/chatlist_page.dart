@@ -31,10 +31,16 @@ class _ChatListPageState extends State<ChatListPage> {
           List<Chat> chats = snapshot.data!;
 
           if(chats.length == 0)
-            return PageFaultScreen(
+            return Transform.translate(
+              offset: Offset(0.0, -150.0),
+              child: Padding(
+              padding: const EdgeInsets.all(15),
+              child: PageFaultScreen(
                     imagePath: 'assets/app_icon.png',
                     title: 'No chats available',
                     description: "Acquire an item through a post to contact the owner",
+              ),
+            ),
             );
 
           return Scaffold(
