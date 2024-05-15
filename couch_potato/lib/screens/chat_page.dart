@@ -164,7 +164,7 @@ class TextBubble extends StatelessWidget {
 
     DateTime date = chatMessage.timestamp.toDate();
     String hours = date.hour.toString();
-    String minutes = date.minute.toString();
+    String minutes = (date.minute < 10 ? "0" : "") + date.minute.toString();
 
     bool amISender = chatMessage.senderId == FirebaseAuth.instance.currentUser!.uid;
 
