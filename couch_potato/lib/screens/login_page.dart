@@ -10,10 +10,26 @@ class GoogleSignInScreen extends StatefulWidget {
 }
 
 class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
-  ValueNotifier userCredential = ValueNotifier('');
+  ValueNotifier userCredential = ValueNotifier(''); 
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkIfLoggedIn();
+    });
+  }
+
+  void checkIfLoggedIn() {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      Navigator.pushReplacementNamed(context, '/home', arguments: currentUser);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
         bottomNavigationBar: null,
         body: ValueListenableBuilder(
