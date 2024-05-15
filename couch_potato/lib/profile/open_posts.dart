@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+final GlobalKey<OpenPostsState> openPostsPageKey = GlobalKey<OpenPostsState>();
+
 class OpenPosts extends StatefulWidget {
   const OpenPosts({super.key});
 
@@ -61,11 +63,34 @@ class OpenPostsState extends State<OpenPosts> with TickerProviderStateMixin {
 
   Future<void> fetchPosts() async {
     List<Post> newPosts = await DatabaseHandler.fetchUserPosts(true);
+    newPosts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     setState(() {
       posts = newPosts;
       _isLoading = false;
     });
+  }
+
+  Future<void> refreshPage() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      await DatabaseHandler.fetchAndSaveFavorites();
+
+      await Future.wait([fetchPosts()]).timeout(const Duration(seconds: 5));
+      setState(() {
+        _isLoading = false;
+        hasConnection = true;
+      });
+
+    } catch (e) {
+      setState(() {
+        hasConnection = false;
+      });
+      return;
+    }
   }
 
   @override
@@ -86,25 +111,7 @@ class OpenPostsState extends State<OpenPosts> with TickerProviderStateMixin {
       body: RefreshIndicator(
         color: appColor,
         onRefresh: () async {
-          try {
-            setState(() {
-              _isLoading = true;
-            });
-
-            await DatabaseHandler.fetchAndSaveFavorites();
-
-            await Future.wait([fetchPosts()]).timeout(const Duration(seconds: 5));
-            setState(() {
-              _isLoading = false;
-              hasConnection = true;
-            });
-          } catch (e) {
-            setState(() {
-              hasConnection = false;
-            });
-            return;
-          }
-          debugPrint('refreshed');
+          await refreshPage();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -162,6 +169,7 @@ class OpenPostsState extends State<OpenPosts> with TickerProviderStateMixin {
             fullLocation: post.fullLocation,
             category: post.category,
             userId: post.userId,
+            parrentWidget: 'openPosts',
           ),
         );
 

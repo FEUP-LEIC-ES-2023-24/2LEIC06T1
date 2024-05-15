@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couch_potato/classes/post.dart';
-import 'package:couch_potato/classes/chatMessage.dart';
+import 'package:couch_potato/classes/chat_message.dart';
 import 'package:couch_potato/classes/chat.dart';
+import 'package:couch_potato/screens/chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -169,7 +170,7 @@ class DatabaseHandler {
       'timestamp': message.timestamp,
     });
   }
-  
+
   static Future<void> fetchAndSaveFavorites() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
@@ -266,15 +267,53 @@ class DatabaseHandler {
 
   static Future<void> closePost(String postId) async {
     await db.collection("posts").doc(postId).update({'isActive': false});
+
+    QuerySnapshot querySnapshot = await db.collection('acquisitions').where('postId', isEqualTo: postId).get();
+    for (var doc in querySnapshot.docs) {
+      await db.collection('acquisitions').doc(doc.id).update({'status': 'acquired'});
+    }
   }
 
-  static Future<void> acquire(String postId, String donorId, String logistics) async {
-    if (logistics == 'couch_potato') {
-      await db.collection("posts").doc(postId).update({'isActive': false});
-    }
-
+  static Future<void> acquire(String postId, String donorId, String logistics, String donorName,
+      String donorProfilePicUrl, BuildContext context) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
     String status = logistics == 'couch_potato' ? 'acquired' : 'pending';
+
+    if (logistics == 'couch_potato') {
+      await db.collection("posts").doc(postId).update({'isActive': false});
+    } else {
+      List<Chat> chats = await getChats(userId);
+
+      Chat? existingChat;
+      for (Chat chat in chats) {
+        if (chat.userId == donorId) {
+          existingChat = chat;
+          break;
+        }
+      }
+
+      if (existingChat == null) {
+        Chat? newChat = await createChat(donorId, donorName, donorProfilePicUrl);
+        if (context.mounted) {
+          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatPage(chat: newChat!),
+            ),
+          );
+        }
+      } else if (context.mounted) {
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatPage(chat: existingChat!),
+          ),
+        );
+      }
+    }
+
     await db.collection('acquisitions').add({
       'postId': postId,
       'donorId': donorId,
@@ -287,7 +326,12 @@ class DatabaseHandler {
   static Future<List<Post>> fetchCategorizedPosts(String category) async {
     List<Post> posts = [];
 
-    await db.collection("posts").where('isActive', isEqualTo: true).where('category', isEqualTo: category).get().then((event) {
+    await db
+        .collection("posts")
+        .where('isActive', isEqualTo: true)
+        .where('category', isEqualTo: category)
+        .get()
+        .then((event) {
       debugPrint("Posts: ${event.docs.length}:");
       for (var item in event.docs) {
         debugPrint("Post: ${item.id} => ${item.data()}");
@@ -310,5 +354,71 @@ class DatabaseHandler {
     });
 
     return posts;
+  }
+
+  static Future<Chat?> createChat(String userId, String userName, String userPhoto) async {
+    String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    late Chat result;
+
+    await db.collection("chats").add({
+      'user1Id': currentUserId,
+      'user1Name': FirebaseAuth.instance.currentUser!.displayName,
+      'user1Photo': FirebaseAuth.instance.currentUser!.photoURL,
+      'user2Id': userId,
+      'user2Name': userName,
+      'user2Photo': userPhoto,
+    }).then((value) {
+      result = Chat(
+        id: value.id,
+        userId: userId,
+        userName: userName,
+        userPhoto: userPhoto,
+      );
+    }).onError((error, stackTrace) {
+      throw Exception('Failed to create chat: $error');
+    });
+
+    return result;
+  }
+
+  static Future<List<Post>> fetchAcquisitions() async {
+    List<Post> acquiredItems = [];
+
+    await db
+        .collection('acquisitions')
+        .where('status', isEqualTo: 'acquired')
+        .where('receiverId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((event) async {
+      debugPrint("Acquisitions: ${event.docs.length}:");
+      for (var item in event.docs) {
+        await db.collection('posts').doc(item.data()['postId']).get().then((value) {
+          debugPrint("Post: ${value.id} => ${value.data()}");
+
+          Post post = Post(
+            postId: value.id,
+            username: value.data()!['username'],
+            createdAt: value.data()!['createdAt'],
+            profileImageUrl: value.data()!['profileImageUrl'],
+            description: value.data()!['description'],
+            mediaUrl: value.data()!['mediaUrl'],
+            mediaPlaceholder: value.data()!['mediaPlaceholder'],
+            fullLocation: value.data()!['fullLocation'],
+            category: value.data()!['category'],
+            userId: value.data()!['userId'],
+          );
+
+          acquiredItems.add(post);
+        });
+      }
+    }).onError((error, stackTrace) {
+      debugPrint('Failed to fetch acquisitions: $error');
+    }).onError((error, stackTrace) {
+      debugPrint('Failed to fetch acquisitions: $error');
+    });
+
+    debugPrint('Acquired Items: $acquiredItems');
+
+    return acquiredItems;
   }
 }

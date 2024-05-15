@@ -36,7 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const OpenPosts()),
+                      MaterialPageRoute(builder: (context) => OpenPosts(key: openPostsPageKey)),
                     );
                   },
                   padding: const EdgeInsets.only(top: 10, bottom: 3),

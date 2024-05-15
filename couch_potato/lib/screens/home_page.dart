@@ -11,7 +11,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 final GlobalKey<HomePageState> homePageKey = GlobalKey<HomePageState>();
 
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -80,9 +79,10 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<void> fetchPosts() async {
     List<Post> newPosts = await DatabaseHandler.getPosts();
+    newPosts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     setState(() {
-      posts = newPosts.reversed.toList();
+      posts = newPosts;
       _isLoading = false;
     });
   }
@@ -132,7 +132,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       floatingActionButton: AnimatedBuilder(
           animation: _animationController,
@@ -166,7 +165,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       body: RefreshIndicator(
         color: appColor,
         onRefresh: () async {
-          await refreshPage();
+          await refreshPage(category: _category);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -189,18 +188,18 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                         ),
                       )
-                    : posts.isEmpty
-                        ? const PageFaultScreen(
-                            imagePath: 'assets/no_posts_image.png',
-                            title: 'No Posts',
-                            description: 'Seems like there are currently no potatoes',
-                          )
-                        : Column(
-                            children: [
-                              categorySearch(),
-                              buildPostList(posts),
-                            ],
-                          ),
+                    : Column(
+                        children: [
+                          categorySearch(),
+                          posts.isEmpty
+                              ? const PageFaultScreen(
+                                  imagePath: 'assets/no_posts_image.png',
+                                  title: 'No Posts',
+                                  description: 'Seems like there are currently no potatoes',
+                                )
+                              : buildPostList(posts),
+                        ],
+                      ),
           ),
         ),
       ),
@@ -276,6 +275,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
             fullLocation: post.fullLocation,
             category: post.category,
             userId: post.userId,
+            parrentWidget: 'homePage',
           ),
         );
 

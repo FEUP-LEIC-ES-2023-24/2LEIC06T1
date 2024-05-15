@@ -62,7 +62,7 @@ class AcquiredItemsState extends State<AcquiredItems> with TickerProviderStateMi
   }
 
   Future<void> fetchPosts() async {
-    List<Post> newPosts = await DatabaseHandler.fetchUserPosts(true);
+    List<Post> newPosts = await DatabaseHandler.fetchAcquisitions();
 
     setState(() {
       posts = newPosts;
@@ -168,6 +168,7 @@ class AcquiredItemsState extends State<AcquiredItems> with TickerProviderStateMi
                     currentUserPost: post.userId == userId,
                     donorId: post.userId,
                     acquiredItem: true,
+                    parrentWidget: 'acquiredItems',
                   ),
                 ),
               );

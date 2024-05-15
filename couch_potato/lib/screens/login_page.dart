@@ -90,7 +90,7 @@ Future<dynamic> signInWithGoogle() async {
     return await FirebaseAuth.instance.signInWithCredential(credential);
   } on Exception catch (e) {
     // TODO
-    print('exception->$e');
+    debugPrint('exception->$e');
   }
 }
 

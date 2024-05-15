@@ -1,44 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:couch_potato/network/database_handler.dart';
-import 'package:couch_potato/classes/chatMessage.dart';
+import 'package:couch_potato/classes/chat_message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couch_potato/classes/chat.dart';
 
-
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  final Chat chat;
+  const ChatPage({super.key, required this.chat});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-
   final TextEditingController _controller = TextEditingController();
   final List<ChatMessage> _messages = [];
 
-  Chat? chat;
-
-
   void _handleSubmit(String text) {
     _controller.clear();
-    
+
     String senderId = "";
     User? user = FirebaseAuth.instance.currentUser;
-    if(user != null){
+    if (user != null) {
       senderId = user.uid;
     }
 
-    String chatId = "";
-    if(chat != null) chatId = chat!.id;
-    
-    ChatMessage message = ChatMessage(
-      chatId: chatId,
-      senderId: senderId,
-      text: text,
-      timestamp: Timestamp.now()
-    );
+    String chatId = widget.chat.id;
+
+    ChatMessage message = ChatMessage(chatId: chatId, senderId: senderId, text: text, timestamp: Timestamp.now());
     setState(() {
       _messages.insert(0, message);
     });
@@ -47,16 +37,12 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-
-    chat ??= ModalRoute.of(context)!.settings.arguments as Chat?;
-    String username = "no username";
-
-    if(chat?.userName != null) username = chat!.userName;
+    String username = widget.chat.userName;
 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context); // Navigate back when the back arrow is pressed
           },
@@ -64,9 +50,9 @@ class _ChatPageState extends State<ChatPage> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundImage: NetworkImage(chat?.userPhoto ?? ''),
+              backgroundImage: NetworkImage(widget.chat.userPhoto),
             ),
-            SizedBox(width: 8), // Add spacing between the image and the title
+            const SizedBox(width: 8), // Add spacing between the image and the title
             Text(username),
           ],
         ),
@@ -74,15 +60,15 @@ class _ChatPageState extends State<ChatPage> {
       body: Column(
         children: [
           Expanded(
-            child: _buildMessagesStream(chat),
+            child: _buildMessagesStream(widget.chat),
           ),
-          Divider(height: 1.0),
+          const Divider(height: 1.0),
           Container(
             decoration: BoxDecoration(color: Theme.of(context).cardColor),
             child: _buildTextComposer(),
           ),
         ],
-      )
+      ),
     );
   }
 
@@ -95,19 +81,19 @@ class _ChatPageState extends State<ChatPage> {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
         final List<ChatMessage> messages = [];
-        snapshot.data!.docs.forEach((doc) {
+        for (var doc in snapshot.data!.docs) {
           final data = doc.data() as Map<String, dynamic>?; // Explicitly cast to Map<String, dynamic> or nullable
           if (data != null) {
             messages.add(ChatMessage.fromMap(data));
           }
-        });
-        
+        }
+
         return ListView.builder(
           reverse: true,
           itemCount: messages.length,
@@ -119,23 +105,25 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-
   Widget _buildTextComposer() {
     return IconTheme(
-      data: IconThemeData(color: Color(0xFFF7981D)),
+      data: const IconThemeData(color: Color(0xFFF7981D)),
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 8.0),
+        margin: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Row(
           children: [
             Flexible(
               child: TextField(
                 controller: _controller,
+                onTapOutside: (PointerDownEvent p) {
+                  FocusScope.of(context).unfocus();
+                },
                 onSubmitted: _handleSubmit,
-                decoration: InputDecoration.collapsed(hintText: 'Send a message'),
+                decoration: const InputDecoration.collapsed(hintText: 'Send a message'),
               ),
             ),
             IconButton(
-              icon: Icon(Icons.send),
+              icon: const Icon(Icons.send),
               onPressed: () => _handleSubmit(_controller.text),
             ),
           ],
@@ -146,21 +134,13 @@ class _ChatPageState extends State<ChatPage> {
 }
 
 class TextBubble extends StatelessWidget {
-
   final ChatMessage chatMessage;
 
-  TextBubble({required this.chatMessage});
+  const TextBubble({super.key, required this.chatMessage});
 
   @override
   Widget build(BuildContext context) {
-
-    print("\n\n text booble\n\n");
-
-    String photoURL = "https://ichef.bbci.co.uk/news/976/cpsprodpb/16620/production/_91408619_55df76d5-2245-41c1-8031-07a4da3f313f.jpg.webp";
-    String? url = FirebaseAuth.instance.currentUser?.photoURL;
-    if(url != null){
-      photoURL = url;
-    }
+    debugPrint("\n\n text booble\n\n");
 
     DateTime date = chatMessage.timestamp.toDate();
     String hours = date.hour.toString();
@@ -169,7 +149,7 @@ class TextBubble extends StatelessWidget {
     bool amISender = chatMessage.senderId == FirebaseAuth.instance.currentUser!.uid;
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 1.0),
+      margin: const EdgeInsets.symmetric(vertical: 1.0),
       child: Row(
         mainAxisAlignment: amISender ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,33 +157,32 @@ class TextBubble extends StatelessWidget {
           Column(
             crossAxisAlignment: amISender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
-              //Text(amISender ? 'Me' : 'ze'),
               Container(
-                margin: EdgeInsets.only(top: 0.0, left: amISender ? 0 : 5, right: amISender ?  5.0 : 0),
-                padding: EdgeInsets.all(4.0),
+                margin: EdgeInsets.only(top: 0.0, left: amISender ? 0 : 5, right: amISender ? 5.0 : 0),
+                padding: const EdgeInsets.all(4.0),
                 decoration: BoxDecoration(
                   color: amISender ? Colors.blue : Colors.grey,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(15.0),
-                    topRight: Radius.circular(15.0),
-                    bottomLeft: amISender ? Radius.circular(15.0) : Radius.circular(0.0),
-                    bottomRight: amISender ? Radius.circular(0.0) : Radius.circular(15.0),
+                    topLeft: const Radius.circular(15.0),
+                    topRight: const Radius.circular(15.0),
+                    bottomLeft: amISender ? const Radius.circular(15.0) : const Radius.circular(0.0),
+                    bottomRight: amISender ? const Radius.circular(0.0) : const Radius.circular(15.0),
                   ),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
-                  children:[
+                  children: [
                     Container(
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       //padding: EdgeInsets.only(right: 5.0),
                       child: Text(
                         chatMessage.text,
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                     Text(
-                      hours + ':' + minutes,
-                      style: TextStyle(color: Colors.white, fontSize: 10),
+                      '$hours:$minutes',
+                      style: const TextStyle(color: Colors.white, fontSize: 10),
                     )
                   ],
                 ),
@@ -215,4 +194,3 @@ class TextBubble extends StatelessWidget {
     );
   }
 }
-
