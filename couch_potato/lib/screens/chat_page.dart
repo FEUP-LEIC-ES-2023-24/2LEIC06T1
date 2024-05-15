@@ -79,25 +79,7 @@ class _ChatPageState extends State<ChatPage> {
       body: Column( 
         children: [
           Expanded(
-            child: _messages.length == 0
-                ? Container(
-                  //margin: EdgeInsets.only(bottom: 100.0);
-                  child: Transform.translate(
-                    offset: Offset(0.0, -100.0),
-                    child: Opacity(
-                        opacity: 0.5,  
-                        child: Transform.scale(
-                          scale: 0.5,  // Specify the scale factor
-                          child: PageFaultScreen(
-                            imagePath: 'assets/app_icon.png',
-                            title: 'No Messages',
-                            description: "Send a message. Dont be a couch potato",
-                        ),
-                      )
-                    )
-                  ),
-                )    
-                : _buildMessagesStream(chat),
+            child: _buildMessagesStream(chat),
           ),
           Divider(height: 1.0),
           Container(
