@@ -4,8 +4,7 @@ import 'package:couch_potato/network/database_handler.dart';
 import 'package:couch_potato/classes/chat_message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couch_potato/classes/chat.dart';
-import 'package:couch_potato/modules/page_fault_screen.dart';
-
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class ChatPage extends StatefulWidget {
   final Chat chat;
@@ -20,8 +19,7 @@ class _ChatPageState extends State<ChatPage> {
   final List<ChatMessage> _messages = [];
 
   void _handleSubmit(String text) {
-
-    if(text == "") return;
+    if (text == "") return;
 
     _controller.clear();
 
@@ -35,7 +33,7 @@ class _ChatPageState extends State<ChatPage> {
 
     ChatMessage message = ChatMessage(chatId: chatId, senderId: senderId, text: text, timestamp: Timestamp.now());
     setState(() {
-        _messages.insert(0, message);
+      _messages.insert(0, message);
     });
     DatabaseHandler.sendMessage(message); //firestore
   }
@@ -62,7 +60,7 @@ class _ChatPageState extends State<ChatPage> {
           ],
         ),
       ),
-      body: Column( 
+      body: Column(
         children: [
           Expanded(
             child: _buildMessagesStream(widget.chat),
@@ -86,7 +84,12 @@ class _ChatPageState extends State<ChatPage> {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: LoadingAnimationWidget.waveDots(
+              color: Colors.grey.shade200,
+              size: 100,
+            ),
+          );
         }
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
