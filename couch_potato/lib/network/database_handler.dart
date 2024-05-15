@@ -267,6 +267,11 @@ class DatabaseHandler {
 
   static Future<void> closePost(String postId) async {
     await db.collection("posts").doc(postId).update({'isActive': false});
+
+    QuerySnapshot querySnapshot = await db.collection('acquisitions').where('postId', isEqualTo: postId).get();
+    for (var doc in querySnapshot.docs) {
+      await db.collection('acquisitions').doc(doc.id).update({'status': 'acquired'});
+    }
   }
 
   static Future<void> acquire(String postId, String donorId, String logistics, String donorName,
