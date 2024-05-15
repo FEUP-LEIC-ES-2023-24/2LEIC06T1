@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couch_potato/classes/post.dart';
 import 'package:couch_potato/classes/chat_message.dart';
 import 'package:couch_potato/classes/chat.dart';
+import 'package:couch_potato/screens/chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -268,8 +269,8 @@ class DatabaseHandler {
     await db.collection("posts").doc(postId).update({'isActive': false});
   }
 
-  static Future<void> acquire(
-      String postId, String donorId, String logistics, String donorName, String donorProfilePicUrl) async {
+  static Future<void> acquire(String postId, String donorId, String logistics, String donorName,
+      String donorProfilePicUrl, BuildContext context) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
     String status = logistics == 'couch_potato' ? 'acquired' : 'pending';
 
@@ -278,18 +279,31 @@ class DatabaseHandler {
     } else {
       List<Chat> chats = await getChats(userId);
 
-      bool chatExists = false;
+      Chat? existingChat;
       for (Chat chat in chats) {
         if (chat.userId == donorId) {
-          chatExists = true;
+          existingChat = chat;
           break;
         }
       }
 
-      if (!chatExists) {
-        await createChat(donorId, donorName, donorProfilePicUrl);
-      } else {
-        debugPrint('Chat already exists');
+      if (existingChat == null) {
+        Chat? newChat = await createChat(donorId, donorName, donorProfilePicUrl);
+        if (context.mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatPage(chat: newChat!),
+            ),
+          );
+        }
+      } else if (context.mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatPage(chat: existingChat!),
+          ),
+        );
       }
     }
 
@@ -335,7 +349,7 @@ class DatabaseHandler {
     return posts;
   }
 
-  static Future<void> createChat(String userId, String userName, String userPhoto) async {
+  static Future<Chat?> createChat(String userId, String userName, String userPhoto) async {
     String currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
     await db.collection("chats").add({
@@ -345,6 +359,14 @@ class DatabaseHandler {
       'user2Id': userId,
       'user2Name': userName,
       'user2Photo': userPhoto,
+    }).then((value) {
+      return Chat(
+        id: value.id,
+        userId: userId,
+        userName: userName,
+        userPhoto: userPhoto,
+      );
     });
+    return null;
   }
 }

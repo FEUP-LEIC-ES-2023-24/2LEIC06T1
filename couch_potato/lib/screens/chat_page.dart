@@ -6,7 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:couch_potato/classes/chat.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  final Chat chat;
+  const ChatPage({super.key, required this.chat});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -15,8 +16,6 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _controller = TextEditingController();
   final List<ChatMessage> _messages = [];
-
-  Chat? chat;
 
   void _handleSubmit(String text) {
     _controller.clear();
@@ -27,8 +26,7 @@ class _ChatPageState extends State<ChatPage> {
       senderId = user.uid;
     }
 
-    String chatId = "";
-    if (chat != null) chatId = chat!.id;
+    String chatId = widget.chat.id;
 
     ChatMessage message = ChatMessage(chatId: chatId, senderId: senderId, text: text, timestamp: Timestamp.now());
     setState(() {
@@ -39,10 +37,7 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    chat ??= ModalRoute.of(context)!.settings.arguments as Chat?;
-    String username = "no username";
-
-    if (chat?.userName != null) username = chat!.userName;
+    String username = widget.chat.userName;
 
     return Scaffold(
       appBar: AppBar(
@@ -55,7 +50,7 @@ class _ChatPageState extends State<ChatPage> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundImage: NetworkImage(chat?.userPhoto ?? ''),
+              backgroundImage: NetworkImage(widget.chat.userPhoto),
             ),
             const SizedBox(width: 8), // Add spacing between the image and the title
             Text(username),
@@ -65,7 +60,7 @@ class _ChatPageState extends State<ChatPage> {
       body: Column(
         children: [
           Expanded(
-            child: _buildMessagesStream(chat),
+            child: _buildMessagesStream(widget.chat),
           ),
           const Divider(height: 1.0),
           Container(

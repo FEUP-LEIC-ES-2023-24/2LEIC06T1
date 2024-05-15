@@ -1,3 +1,4 @@
+import 'package:couch_potato/screens/chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:couch_potato/network/database_handler.dart';
@@ -11,10 +12,8 @@ class ChatListPage extends StatefulWidget {
 }
 
 class _ChatListPageState extends State<ChatListPage> {
-
   @override
   Widget build(BuildContext context) {
-
     return FutureBuilder<List<Chat>>(
       future: DatabaseHandler.getChats(FirebaseAuth.instance.currentUser!.uid),
       builder: (BuildContext context, AsyncSnapshot<List<Chat>> snapshot) {
@@ -62,7 +61,13 @@ class ChatElementWidget extends StatelessWidget {
       title: Text(chat.userName),
       subtitle: const Text('tap to view messages'), // You can add message text here
       onTap: () {
-        Navigator.pushNamed(context, '/chat', arguments: chat);
+        //Material page route to navigate to the chat page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatPage(chat: chat),
+          ),
+        );
       },
     );
   }
