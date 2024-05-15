@@ -4,7 +4,6 @@ import 'package:couch_potato/network/database_handler.dart';
 import 'package:couch_potato/network/post/post_footer.dart';
 import 'package:couch_potato/network/post/post_header.dart';
 import 'package:couch_potato/network/redirected_post/redirected_post.dart';
-import 'package:couch_potato/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:blurhash_ffi/blurhash_ffi.dart';
@@ -142,7 +141,7 @@ class _SocialPostState extends State<SocialPost> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    String postHeaderFooter = '${widget.timestamp} - $location';
+    String postHeaderFooter = widget.timestamp;
 
     return AnimatedOpacity(
       opacity: opacity,

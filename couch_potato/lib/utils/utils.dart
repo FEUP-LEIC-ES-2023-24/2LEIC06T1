@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:devicelocale/devicelocale.dart';
 import 'package:tinycolor2/tinycolor2.dart';
 
 Color appColor = const Color(0xFFCF7000);
@@ -19,16 +18,6 @@ Future<bool> hasInternetConnection() async {
   } on TimeoutException catch (_) {
     return false;
   }
-}
-
-String? location;
-
-void fetchLocation() async {
-  String? locale = await Devicelocale.currentLocale;
-  debugPrint('locale: $locale');
-  String? countryCode = locale?.split('-').elementAt(1);
-  debugPrint('countryCode: $countryCode');
-  location = countryCode;
 }
 
 String timeDelta(String timestampString) {
