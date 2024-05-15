@@ -295,6 +295,7 @@ class DatabaseHandler {
       if (existingChat == null) {
         Chat? newChat = await createChat(donorId, donorName, donorProfilePicUrl);
         if (context.mounted) {
+          Navigator.pop(context);
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -303,6 +304,7 @@ class DatabaseHandler {
           );
         }
       } else if (context.mounted) {
+        Navigator.pop(context);
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -356,6 +358,7 @@ class DatabaseHandler {
 
   static Future<Chat?> createChat(String userId, String userName, String userPhoto) async {
     String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    late Chat result;
 
     await db.collection("chats").add({
       'user1Id': currentUserId,
@@ -365,13 +368,16 @@ class DatabaseHandler {
       'user2Name': userName,
       'user2Photo': userPhoto,
     }).then((value) {
-      return Chat(
+      result = Chat(
         id: value.id,
         userId: userId,
         userName: userName,
         userPhoto: userPhoto,
       );
+    }).onError((error, stackTrace) {
+      throw Exception('Failed to create chat: $error');
     });
-    return null;
+
+    return result;
   }
 }

@@ -240,17 +240,15 @@ class _RedirectedPostState extends State<RedirectedPost> {
                                 await openPostsPageKey.currentState?.refreshPage();
                               }
                             } else {
-                              if (_logistics == Logistics.couchPotato) {
-                                showLoadingSheet(
-                                  context,
-                                  true,
-                                  isAcquisition: true,
-                                );
-                              }
+                              showLoadingSheet(
+                                context,
+                                true,
+                                isAcquisition: true,
+                              );
 
                               String logistics = _logistics == Logistics.user ? 'user' : 'couch_potato';
                               await DatabaseHandler.acquire(widget.postId, widget.donorId, logistics, post!.username,
-                                  post!.profileImageUrl, context);
+                                  post!.profileImageUrl, context);                             
 
                               if (context.mounted && _logistics == Logistics.couchPotato) {
                                 Navigator.pop(context);
