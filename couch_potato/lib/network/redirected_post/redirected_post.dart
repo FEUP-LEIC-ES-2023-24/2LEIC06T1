@@ -113,7 +113,7 @@ class _RedirectedPostState extends State<RedirectedPost> {
                               Expanded(
                                 child: PostHeader(
                                   name: post!.username,
-                                  footer: '${timeDelta(post!.createdAt)} - $location',
+                                  footer: timeDelta(post!.createdAt),
                                   profileImageUrl: post!.profileImageUrl,
                                 ),
                               ),
