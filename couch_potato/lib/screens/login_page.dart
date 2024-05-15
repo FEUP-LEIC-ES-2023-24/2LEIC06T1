@@ -39,17 +39,8 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
                           
                             child: Row(
                               children: [
-                                IconButton(
-                                  iconSize: 40,
-                                  icon: Image.asset(
+                                Image.asset(
                                     'assets/google_icon.png',
-                                  ),
-                                  onPressed: () async {
-                                    userCredential.value = await signInWithGoogle();
-                                    if (userCredential.value != null){
-                                      print(userCredential.value.user!.email);
-                                    }
-                                  },
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(16.0),
