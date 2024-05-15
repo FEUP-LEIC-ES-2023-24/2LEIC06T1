@@ -24,7 +24,7 @@ class ChatMessage {
       chatId: map['chatId'],
       senderId: map['senderId'],
       text: map['text'],
-      timestamp: map['timestamp'], // Assuming timestamp is stored as a Timestamp in Firestore
+      timestamp: map['timestamp'],
     );
   }
   
