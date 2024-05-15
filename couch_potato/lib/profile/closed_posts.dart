@@ -191,6 +191,7 @@ class ClosedPostsState extends State<ClosedPosts> with TickerProviderStateMixin 
             category: post.category,
             userId: post.userId,
             closedPosts: true,
+            parrentWidget: 'closedPosts',
           ),
         );
 

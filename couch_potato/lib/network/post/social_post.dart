@@ -25,6 +25,7 @@ class SocialPost extends StatefulWidget {
   final String category;
   final String userId;
   final bool closedPosts;
+  final String parrentWidget;
   const SocialPost({
     super.key,
     required this.profileImageUrl,
@@ -38,6 +39,7 @@ class SocialPost extends StatefulWidget {
     required this.category,
     required this.userId,
     this.closedPosts = false,
+    required this.parrentWidget,
   });
 
   @override
@@ -155,6 +157,7 @@ class _SocialPostState extends State<SocialPost> with SingleTickerProviderStateM
                   postId: widget.postId,
                   currentUserPost: widget.userId == userId,
                   donorId: widget.userId,
+                  parrentWidget: widget.parrentWidget,
                 ),
               ),
             );

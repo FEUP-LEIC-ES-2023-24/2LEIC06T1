@@ -162,6 +162,7 @@ class FavoritePostsState extends State<FavoritePosts> with TickerProviderStateMi
             fullLocation: post.fullLocation,
             category: post.category,
             userId: post.userId,
+            parrentWidget: 'favoritePosts',
           ),
         );
 

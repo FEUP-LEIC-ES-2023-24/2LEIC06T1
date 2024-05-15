@@ -6,11 +6,13 @@ import 'package:couch_potato/network/post/post_footer.dart';
 import 'package:couch_potato/network/post/post_header.dart';
 import 'package:couch_potato/network/redirected_post/post_info.dart';
 import 'package:couch_potato/network/redirected_post/logistics_options.dart';
+import 'package:couch_potato/profile/open_posts.dart';
 import 'package:couch_potato/screens/home_page.dart';
 import 'package:couch_potato/utils/show_pop_up.dart';
 import 'package:couch_potato/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:couch_potato/modules/app_bar.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:path_provider/path_provider.dart';
@@ -22,12 +24,14 @@ class RedirectedPost extends StatefulWidget {
   final bool currentUserPost;
   final String donorId;
   final bool acquiredItem;
+  final String parrentWidget;
   const RedirectedPost({
     super.key,
     required this.postId,
     required this.currentUserPost,
     required this.donorId,
     this.acquiredItem = false,
+    required this.parrentWidget,
   });
 
   @override
@@ -223,9 +227,18 @@ class _RedirectedPostState extends State<RedirectedPost> {
                             elevation: 3,
                           ),
                           onPressed: () async {
+                            HapticFeedback.selectionClick();
                             if (widget.currentUserPost) {
+                              DatabaseHandler.closePost(widget.postId);
                               Navigator.pop(context);
-                              await DatabaseHandler.closePost(widget.postId);
+                              if (widget.parrentWidget == 'homePage') {
+                                homePageKey.currentState?.refreshPage();
+                              }
+
+                              if (widget.parrentWidget == 'openPosts') {
+                                debugPrint('refreshing open posts');
+                                await openPostsPageKey.currentState?.refreshPage();
+                              }
                             } else {
                               if (_logistics == Logistics.couchPotato) {
                                 showLoadingSheet(

@@ -168,6 +168,7 @@ class AcquiredItemsState extends State<AcquiredItems> with TickerProviderStateMi
                     currentUserPost: post.userId == userId,
                     donorId: post.userId,
                     acquiredItem: true,
+                    parrentWidget: 'acquiredItems',
                   ),
                 ),
               );
