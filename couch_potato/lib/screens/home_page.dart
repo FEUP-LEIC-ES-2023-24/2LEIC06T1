@@ -165,7 +165,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       body: RefreshIndicator(
         color: appColor,
         onRefresh: () async {
-          await refreshPage();
+          await refreshPage(category: _category);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -188,18 +188,18 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                         ),
                       )
-                    : posts.isEmpty
-                        ? const PageFaultScreen(
-                            imagePath: 'assets/no_posts_image.png',
-                            title: 'No Posts',
-                            description: 'Seems like there are currently no potatoes',
-                          )
-                        : Column(
-                            children: [
-                              categorySearch(),
-                              buildPostList(posts),
-                            ],
-                          ),
+                    : Column(
+                        children: [
+                          categorySearch(),
+                          posts.isEmpty
+                              ? const PageFaultScreen(
+                                  imagePath: 'assets/no_posts_image.png',
+                                  title: 'No Posts',
+                                  description: 'Seems like there are currently no potatoes',
+                                )
+                              : buildPostList(posts),
+                        ],
+                      ),
           ),
         ),
       ),
