@@ -380,4 +380,45 @@ class DatabaseHandler {
 
     return result;
   }
+
+  static Future<List<Post>> fetchAcquisitions() async {
+    List<Post> acquiredItems = [];
+
+    await db
+        .collection('acquisitions')
+        .where('status', isEqualTo: 'acquired')
+        .where('receiverId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((event) async {
+      debugPrint("Acquisitions: ${event.docs.length}:");
+      for (var item in event.docs) {
+        await db.collection('posts').doc(item.data()['postId']).get().then((value) {
+          debugPrint("Post: ${value.id} => ${value.data()}");
+
+          Post post = Post(
+            postId: value.id,
+            username: value.data()!['username'],
+            createdAt: value.data()!['createdAt'],
+            profileImageUrl: value.data()!['profileImageUrl'],
+            description: value.data()!['description'],
+            mediaUrl: value.data()!['mediaUrl'],
+            mediaPlaceholder: value.data()!['mediaPlaceholder'],
+            fullLocation: value.data()!['fullLocation'],
+            category: value.data()!['category'],
+            userId: value.data()!['userId'],
+          );
+
+          acquiredItems.add(post);
+        });
+      }
+    }).onError((error, stackTrace) {
+      debugPrint('Failed to fetch acquisitions: $error');
+    }).onError((error, stackTrace) {
+      debugPrint('Failed to fetch acquisitions: $error');
+    });
+
+    debugPrint('Acquired Items: $acquiredItems');
+
+    return acquiredItems;
+  }
 }
