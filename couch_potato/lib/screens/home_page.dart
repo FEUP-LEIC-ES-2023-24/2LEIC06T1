@@ -9,6 +9,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+final GlobalKey<HomePageState> homePageKey = GlobalKey<HomePageState>();
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -27,17 +29,17 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   bool hasConnection = true;
   bool _isLoading = true;
-  bool _isFetchingMorePosts = false; //TODO implement (not final)
-  bool _noMorePosts = false;
 
-  int offset = 0;
-  int numberOfPosts = 5;
+  String _category = 'Uncategorized';
 
-  static const TextStyle tabTextStyle = TextStyle(
-    fontFamily: "Montserrat",
-    fontWeight: FontWeight.w500,
-    fontSize: 15,
-  );
+  final List<String> categoryList = [
+    'Uncategorized',
+    'Furniture',
+    'Electronics',
+    'Clothing',
+    'Books',
+    'Other',
+  ];
 
   @override
   void initState() {
@@ -58,13 +60,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     fetchPosts();
   }
 
-  void _scrollListener() {
-    if (_isFetchingMorePosts || _noMorePosts) return;
-    if (scrollController.position.pixels + 50 >= scrollController.position.maxScrollExtent) {
-      fetchPosts();
-    }
-  }
-
   void setUpScrollController(ScrollController controller) {
     controller.addListener(() {
       if (controller.position.userScrollDirection == ScrollDirection.forward) {
@@ -73,7 +68,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
         _animationController.forward();
       }
     });
-    scrollController.addListener(_scrollListener);
   }
 
   void setHasConnection() async {
@@ -84,29 +78,54 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future<void> fetchPosts() async {
-    if (_isFetchingMorePosts) return;
-    setState(() {
-      _isFetchingMorePosts = true;
-    });
+    List<Post> newPosts = await DatabaseHandler.getPosts();
+    newPosts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-    List<Post> newPosts = await DatabaseHandler.getPosts(1);
-    if (newPosts.isEmpty) {
-      setState(() {
-        _noMorePosts = true;
-      });
-    }
     setState(() {
-      _isFetchingMorePosts = false;
-      posts.addAll(newPosts);
+      posts = newPosts;
       _isLoading = false;
     });
-    //TODO try catch
+  }
+
+  Future<void> fetchCategorizedPosts(String category) async {
+    List<Post> newPosts = await DatabaseHandler.fetchCategorizedPosts(category);
+
+    setState(() {
+      posts = newPosts.reversed.toList();
+      _isLoading = false;
+    });
+  }
+
+  Future<void> refreshPage({String? category}) async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      await DatabaseHandler.fetchAndSaveFavorites();
+
+      if (category == null || category == 'Uncategorized') {
+        await Future.wait([fetchPosts()]).timeout(const Duration(seconds: 5));
+      } else if (category != 'Uncategorized') {
+        await Future.wait([fetchCategorizedPosts(category)]).timeout(const Duration(seconds: 5));
+      }
+
+      setState(() {
+        _isLoading = false;
+        hasConnection = true;
+      });
+    } catch (e) {
+      setState(() {
+        hasConnection = false;
+      });
+      return;
+    }
+    debugPrint('refreshed');
   }
 
   @override
   void dispose() {
     _animationController.dispose();
-    scrollController.removeListener(_scrollListener);
     scrollController.dispose();
     super.dispose();
   }
@@ -126,13 +145,11 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   child: FloatingActionButton(
                     onPressed: () async {
                       if (await hasInternetConnection() && mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const CreatePostPage()
-                            ),
-                          );
-                        }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const CreatePostPage()),
+                        );
+                      }
                       HapticFeedback.selectionClick();
                     },
                     foregroundColor: Colors.white,
@@ -148,25 +165,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       body: RefreshIndicator(
         color: appColor,
         onRefresh: () async {
-          try {
-            setState(() {
-              _isLoading = true;
-              offset = 0;
-              _noMorePosts = false;
-            });
-
-            await Future.wait([fetchPosts()]).timeout(const Duration(seconds: 5));
-            setState(() {
-              _isLoading = false;
-              hasConnection = true;
-            });
-          } catch (e) {
-            setState(() {
-              hasConnection = false;
-            });
-            return;
-          }
-          debugPrint('refreshed');
+          await refreshPage(category: _category);
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -189,45 +188,67 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                         ),
                       )
-                    : posts.isEmpty
-                        ? const PageFaultScreen(
-                            imagePath: 'assets/no_posts_image.png',
-                            title: 'No Posts',
-                            description: 'Seems like there are currently no potatoes',
-                          )
-                        : Column(
-                            children: [
-                              buildPostList(posts),
-                              _isFetchingMorePosts
-                                  ? SizedBox(
-                                      height: 60,
-                                      child: LoadingAnimationWidget.waveDots(
-                                        color: Colors.grey.shade200,
-                                        size: 70,
-                                      ),
-                                    )
-                                  : _noMorePosts
-                                      ? const SizedBox(
-                                          height: 60,
-                                          child: Center(
-                                            child: Text(
-                                              "There are no more posts available",
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.normal,
-                                                color: Color(0xFF858B92),
-                                                fontFamily: 'Montserrat',
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                      : const SizedBox(
-                                          height: 60,
-                                        )
-                            ],
-                          ),
+                    : Column(
+                        children: [
+                          categorySearch(),
+                          posts.isEmpty
+                              ? const PageFaultScreen(
+                                  imagePath: 'assets/no_posts_image.png',
+                                  title: 'No Posts',
+                                  description: 'Seems like there are currently no potatoes',
+                                )
+                              : buildPostList(posts),
+                        ],
+                      ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget categorySearch() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: const Color(0xFFDFDFDF),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: DropdownButtonFormField(
+        padding: const EdgeInsets.only(right: 15),
+        style: const TextStyle(
+          color: Color(0xFF555555),
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Montserrat',
+        ),
+        decoration: InputDecoration(
+          prefixIcon: Icon(Icons.search, color: appColor, size: 25),
+          hintText: 'Category',
+          hintStyle: const TextStyle(
+            color: Color(0xFFBEBEBE),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            fontFamily: 'Montserrat',
+          ),
+          border: InputBorder.none,
+        ),
+        iconEnabledColor: appColor,
+        iconDisabledColor: appColor,
+        value: _category,
+        items: categoryList.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+        onChanged: (value) async {
+          setState(() {
+            _category = value ?? 'Uncategorized';
+          });
+          await refreshPage(category: value);
+        },
       ),
     );
   }
@@ -252,6 +273,9 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
             imageUrl: post.mediaUrl,
             mediaPlaceholder: post.mediaPlaceholder,
             fullLocation: post.fullLocation,
+            category: post.category,
+            userId: post.userId,
+            parrentWidget: 'homePage',
           ),
         );
 

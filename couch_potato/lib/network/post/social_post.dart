@@ -1,14 +1,17 @@
 import 'dart:io';
 import 'package:couch_potato/modules/card_widget.dart';
+import 'package:couch_potato/network/database_handler.dart';
 import 'package:couch_potato/network/post/post_footer.dart';
 import 'package:couch_potato/network/post/post_header.dart';
 import 'package:couch_potato/network/redirected_post/redirected_post.dart';
 import 'package:couch_potato/utils/utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:blurhash_ffi/blurhash_ffi.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SocialPost extends StatefulWidget {
   final String profileImageUrl;
@@ -19,6 +22,10 @@ class SocialPost extends StatefulWidget {
   final String imageUrl;
   final String postId;
   final String fullLocation;
+  final String category;
+  final String userId;
+  final bool closedPosts;
+  final String parrentWidget;
   const SocialPost({
     super.key,
     required this.profileImageUrl,
@@ -29,6 +36,10 @@ class SocialPost extends StatefulWidget {
     required this.imageUrl,
     required this.postId,
     required this.fullLocation,
+    required this.category,
+    required this.userId,
+    this.closedPosts = false,
+    required this.parrentWidget,
   });
 
   @override
@@ -65,15 +76,17 @@ class _SocialPostState extends State<SocialPost> with SingleTickerProviderStateM
     );
   }
 
-  //TODO check if user favorited the post
   Future<void> fetchIsFavorite() async {
-    /* final SocialNetworkHandler socialNetworkHandler = Provider.of<SocialNetworkHandler>(context, listen: false);
-    var value = await socialNetworkHandler.isPostLiked(widget.postId);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> favorites = prefs.getStringList('favorites') ?? [];
+
+    bool value = favorites.contains(widget.postId);
+
     if (context.mounted) {
       setState(() {
         isFavorite = value;
       });
-    } */
+    }
   }
 
   @override
@@ -136,11 +149,19 @@ class _SocialPostState extends State<SocialPost> with SingleTickerProviderStateM
       duration: const Duration(milliseconds: 300),
       child: GestureDetector(
         onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => RedirectedPost(postId: widget.postId),
-            ),
-          );
+          if (!widget.closedPosts) {
+            String userId = FirebaseAuth.instance.currentUser!.uid;
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => RedirectedPost(
+                  postId: widget.postId,
+                  currentUserPost: widget.userId == userId,
+                  donorId: widget.userId,
+                  parrentWidget: widget.parrentWidget,
+                ),
+              ),
+            );
+          }
         },
         child: CardWidget(
           padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
@@ -196,11 +217,12 @@ class _SocialPostState extends State<SocialPost> with SingleTickerProviderStateM
               PostFooter(
                 fullLocation: widget.fullLocation,
                 isFavorite: isFavorite,
-                favFunction: () {
-                  //TODO Favorite post in DB
+                favFunction: () async {
                   setState(() {
                     isFavorite = !isFavorite;
                   });
+
+                  await DatabaseHandler.addFavorite(widget.postId, !isFavorite);
                 },
                 sharePostFunction: () async {
                   try {

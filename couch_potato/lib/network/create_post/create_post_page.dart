@@ -4,7 +4,9 @@ import 'package:couch_potato/classes/post.dart';
 import 'package:couch_potato/network/create_post/category_field.dart';
 import 'package:couch_potato/network/create_post/location_field.dart';
 import 'package:couch_potato/network/database_handler.dart';
+import 'package:couch_potato/screens/home_page.dart';
 import 'package:couch_potato/utils/utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -17,7 +19,6 @@ import 'package:couch_potato/utils/snackbars.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 class CreatePostPage extends StatefulWidget {
-  final bool editMode;
   final String postDescription;
   final String postLocation;
   final Category postCategory;
@@ -26,7 +27,6 @@ class CreatePostPage extends StatefulWidget {
   final String? mediaPlaceholder;
   const CreatePostPage({
     super.key,
-    this.editMode = false,
     this.postDescription = '',
     this.postLocation = '',
     this.postCategory = Category.furniture,
@@ -45,9 +45,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
   late Category _category;
   final ImagePicker _picker = ImagePicker();
   XFile? _media;
-  late String _profileImageUrl;
 
-  late ImageProvider imageProvider;
+  String _profileImageUrl = '';
+  String _username = 'Username';
 
   @override
   void initState() {
@@ -57,8 +57,12 @@ class _CreatePostPageState extends State<CreatePostPage> {
       _location = widget.postLocation;
       _category = widget.postCategory;
     });
-    /* fetchProfileImageUrl(); */ //TODO fetch profile image url
-    /* checkFirebaseAuth(); */ //TODO Check Auth on page init
+
+    User? user = FirebaseAuth.instance.currentUser;
+    _username = user?.displayName ?? 'Username';
+    _profileImageUrl = user?.photoURL ?? '';
+
+    DatabaseHandler.checkFirebaseAuth();
   }
 
   Future getImageFromGallery() async {
@@ -155,8 +159,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
     }
 
     String? blurHash;
+    String? mediaUrlNullable;
     if (_media != null) {
       blurHash = await generateBlurHash();
+      mediaUrlNullable = await DatabaseHandler.uploadImageToFirestore(_media!, 'posts_media');
     }
     if (widget.mediaPlaceholder != null) {
       blurHash = widget.mediaPlaceholder;
@@ -166,17 +172,19 @@ class _CreatePostPageState extends State<CreatePostPage> {
       String cleanedDescription = _description.trimRight();
       String category = _category.toString().split('.').last;
       category = category[0].toUpperCase() + category.substring(1);
+      String userId = FirebaseAuth.instance.currentUser!.uid;
 
       Post post = Post(
         postId: '',
-        username: 'username',
+        username: _username,
         createdAt: DateTime.now().toString(),
         profileImageUrl: _profileImageUrl,
         description: cleanedDescription,
-        mediaUrl: _media != null ? _media!.path : widget.mediaUrl!, //TODO send to firebase storage and fetch url
+        mediaUrl: mediaUrlNullable!,
         mediaPlaceholder: blurHash!,
         fullLocation: _location,
         category: category,
+        userId: userId,
       );
 
       try {
@@ -184,8 +192,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
         if (mounted) {
           Navigator.pop(context);
           Navigator.pop(context);
+          homePageKey.currentState?.refreshPage();
         }
-      } catch (e, stack) {
+      } catch (e) {
         if (mounted && e is ShowableError) {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
@@ -203,29 +212,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
     }
   }
 
-  void editPost() async {
-    String cleanedDescription = _description.trimRight();
-
-    /* databaseHandler.editPost(); */ //TODO edit post logic
-  }
-
   @override
   Widget build(BuildContext context) {
-    /* void popUpYesMethod() {
-      HapticFeedback.selectionClick();
-      debugPrint('Deleting post');
-      /* databaseHandler.deletePost(widget.postId!); */ //TODO delete post
-      Navigator.of(context).pop();
-      Navigator.of(context).pop();
-    }
-
-    void popUpNoMethod() {
-      debugPrint('User rejected post deletion modal');
-      Navigator.of(context).pop();
-    }
-
-    const String popUpText = 'Are you sure you want to delete this post?'; */
-
     return Scaffold(
       appBar: const MyAppBar(showBackButton: true),
       body: Column(
@@ -237,10 +225,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
+                  const Center(
                     child: Text(
-                      widget.editMode ? 'Edit Post' : 'New Post',
-                      style: const TextStyle(
+                      'New Post',
+                      style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w500,
                         fontSize: 18,
@@ -249,26 +237,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
                     ),
                   ),
                   widget.mediaUrl == null ? const SizedBox(height: 10) : const SizedBox(height: 20),
-                  /* Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      if (widget.editMode)
-                        TextButton(
-                          onPressed: () {
-                            showPopUp(context, const Color(0xFFFF6868), popUpYesMethod, popUpNoMethod, popUpText);
-                          },
-                          child: const Text(
-                            'Delete Post',
-                            style: TextStyle(
-                              color: Color(0xFFFF6868),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'Montserrat',
-                            ),
-                          ),
-                        ),
-                    ],
-                  ), */
                   widget.mediaUrl == null ? const SizedBox(height: 5) : const SizedBox(height: 15),
                   const Text(
                     'Description',
@@ -279,14 +247,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
                       fontFamily: 'Montserrat',
                     ),
                   ),
-                  widget.editMode
-                      ? DescriptionTextField(
-                          onSubmitted: descriptionOnSubmitted,
-                          defaultText: widget.postDescription,
-                        )
-                      : DescriptionTextField(
-                          onSubmitted: descriptionOnSubmitted,
-                        ),
+                  DescriptionTextField(
+                    onSubmitted: descriptionOnSubmitted,
+                  ),
                   widget.mediaUrl == null ? const SizedBox(height: 15) : const SizedBox(height: 35),
                   Stack(
                     clipBehavior: Clip.none,
@@ -297,8 +260,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         getImageFromCamera: getImageFromCamera,
                         imageUrl: widget.mediaUrl,
                         mediaPlaceholder: widget.mediaPlaceholder,
-                        noMedia:
-                            (widget.editMode && widget.mediaUrl == null || widget.editMode && widget.mediaUrl == ''),
                       ),
                       if (_media != null)
                         Positioned(
@@ -326,22 +287,12 @@ class _CreatePostPageState extends State<CreatePostPage> {
                     ],
                   ),
                   widget.mediaUrl == null ? const SizedBox(height: 10) : const SizedBox(height: 30),
-                  widget.editMode
-                      ? LocationField(
-                          onSubmitted: locationOnSubmitted,
-                          defaultText: widget.postLocation,
-                        )
-                      : LocationField(
-                          onSubmitted: locationOnSubmitted,
-                        ),
-                  widget.editMode
-                      ? CategoryField(
-                          onSubmitted: categoryOnSubmitted,
-                          defaultCategory: widget.postCategory,
-                        )
-                      : CategoryField(
-                          onSubmitted: categoryOnSubmitted,
-                        ),
+                  LocationField(
+                    onSubmitted: locationOnSubmitted,
+                  ),
+                  CategoryField(
+                    onSubmitted: categoryOnSubmitted,
+                  ),
                 ],
               ),
             ),
@@ -372,17 +323,31 @@ class _CreatePostPageState extends State<CreatePostPage> {
               ),
               onPressed: () async {
                 HapticFeedback.selectionClick();
-                if (_media == null && _description.isEmpty && widget.mediaUrl == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    ErrorSnackbar(errorText: 'Add text or an image to your post', context: context),
-                  );
+                if (_media == null && widget.mediaUrl == null ||
+                    _description.isEmpty ||
+                    _location.isEmpty ||
+                    _category.toString().isEmpty) {
+                  if (_media == null && widget.mediaUrl == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      ErrorSnackbar(errorText: 'Add an image to your post', context: context),
+                    );
+                  } else if (_description.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      ErrorSnackbar(errorText: 'Add a description to your post', context: context),
+                    );
+                  } else if (_location.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      ErrorSnackbar(errorText: 'Add a location to your post', context: context),
+                    );
+                  } else if (_category.toString().isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      ErrorSnackbar(errorText: 'Add a category to your post', context: context),
+                    );
+                  }
                   return;
                 }
-                if (widget.editMode) {
-                  editPost();
-                } else {
-                  await publishPost();
-                }
+
+                await publishPost();
               },
               child: const Text(
                 'Publish',
