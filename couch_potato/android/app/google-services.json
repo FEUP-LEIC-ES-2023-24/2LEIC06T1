@@ -22,11 +22,27 @@
           }
         },
         {
+          "client_id": "558481956553-aokp5dn9tq71qpjofb1icvfiijpt4u3a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.couch_potato",
+            "certificate_hash": "8fed761521a31c8330e5ee823f739f1dc1ff6b6a"
+          }
+        },
+        {
           "client_id": "558481956553-hppjuavgrlr59c5vha706oglh7him85l.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.couch_potato",
             "certificate_hash": "08c8fd2086a49b8aa1c206eea8d00950a982ec5a"
+          }
+        },
+        {
+          "client_id": "558481956553-j86gfh6grolqk96m983ihjn6pdtcvot4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.couch_potato",
+            "certificate_hash": "55ee21aef8c167f2536709de72f8eb7e55d85e8b"
           }
         },
         {

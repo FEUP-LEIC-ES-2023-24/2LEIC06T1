@@ -269,7 +269,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                             color: Colors.white,
                             disabledColor: Colors.white,
                             style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(Colors.white),
+                              backgroundColor: WidgetStateProperty.all(Colors.white),
                             ),
                             onPressed: () {
                               setState(() {

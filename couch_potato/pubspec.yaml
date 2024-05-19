@@ -55,6 +55,7 @@ dependencies:
   auto_size_text: ^3.0.0
   shared_preferences: ^2.2.3
   flutter_launcher_icons: ^0.13.1
+  mockito: ^5.0.16
 
 flutter_launcher_icons:
   android: true
