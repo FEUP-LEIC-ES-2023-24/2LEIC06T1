@@ -22,24 +22,10 @@ class _DescriptionTextFieldState extends State<DescriptionTextField> {
   }
 
   int _countParagraphs(String text) {
-    List<String> lines = text.split('\n');
-    int paragraphCount = 0;
-
-    for (int i = 0; i < lines.length; i++) {
-      String line = lines[i];
-
-      // If the line is not empty, count it as a paragraph
-      if (line.trim().isNotEmpty) {
-        paragraphCount++;
-      }
-      // If the line is empty and it's not the last line, count it as a paragraph
-      else if (i != lines.length - 1) {
-        paragraphCount++;
-      }
-    }
-
-    return paragraphCount;
+    List<String> paragraphs = text.split('\n\n');
+    return paragraphs.length;
   }
+
 
   @override
   void dispose() {
