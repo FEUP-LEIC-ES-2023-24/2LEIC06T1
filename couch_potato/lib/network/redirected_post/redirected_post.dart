@@ -149,7 +149,7 @@ class _RedirectedPostState extends State<RedirectedPost> {
                             ),
                           if (post!.mediaUrl.isNotEmpty) const SizedBox(height: 15),
                           PostFooter(
-                            currentUserPost: widget.currentUserPost,
+                            currentUserPost: (widget.currentUserPost || widget.acquiredItem),
                             fullLocation: post!.fullLocation,
                             isFavorite: isFavorite,
                             favFunction: () async {
@@ -178,7 +178,7 @@ class _RedirectedPostState extends State<RedirectedPost> {
                             },
                           ),
                           const SizedBox(height: 15),
-                          widget.currentUserPost
+                          (widget.currentUserPost || widget.acquiredItem)
                               ? PostInfo(
                                   category: post!.category,
                                   acquiredItem: widget.acquiredItem,
@@ -248,7 +248,7 @@ class _RedirectedPostState extends State<RedirectedPost> {
 
                               String logistics = _logistics == Logistics.user ? 'user' : 'couch_potato';
                               await DatabaseHandler.acquire(widget.postId, widget.donorId, logistics, post!.username,
-                                  post!.profileImageUrl, context);                             
+                                  post!.profileImageUrl, context);
 
                               if (context.mounted && _logistics == Logistics.couchPotato) {
                                 Navigator.pop(context);
