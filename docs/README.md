@@ -95,4 +95,87 @@ The Pysical arqchiteture diagram is composed by three nodes, which represent the
 
 ### Vertical prototype
 
-![Prototype-V1](./Assets/acceptance_test.gif)
+<!--#### First Prototype
+ ![Prototype-V1](./Assets/acceptance_test.gif) -->
+<p align="center">
+  <b>First Prototype</b><br><br>
+  <img src="./Assets/acceptance_test.gif" width="125" /> 
+</p>
+<!-- #### Final Prototype
+ ![FinalPrototype](./Assets/feed1gift.gif)
+![FinalPrototype](./Assets/feed2gift.gif)
+![FinalPrototype](./Assets/addPostGift.gif)
+![FinalPrototype](./Assets/profilegift.gif) -->
+
+<p align="center">
+  <b>Final Prototype</b><br><br>
+  <img src="./Assets/feed1gift.gif" width="125" height="277.5"/>
+  <img src="./Assets/feed2gift.gif" width="125" /> 
+  <img src="./Assets/addPostGift.gif" width="125" />
+  <img src="./Assets/profilegift.gif" width="125" />
+</p>
+
+## Project management
+
+### Sprint 1
+
+#### Final Backlog
+
+![backlog_screenshot](./Assets/DashBoard-s1.png)
+
+### Sprint 1 Retrospective
+
+#### What went well?
+
+- The work developed during the sprint was also useful in getting familiarized with the technologies being used.
+- High acceptance rate of the features implemented.
+
+#### What could have gone better?
+
+- We were not able to implemented all the issues planned for the sprint.
+- There was a need for better tracking of the project's flow, including constant updates to the product backlog and creation of pull requests for each branch.
+- We had many problems according to the technologies being used so every element could develop in their own machine from emulator problems to flutter and dart external libraries.
+
+#### What are we going to do to improve?
+
+- Integrate the product backlog more effectively to keep track of changes throughout the sprint and use pull requests to connect branches with user stories.
+- Ensure a more universal codebase in the Git repository to facilitate code execution on different machines without encountering environment-specific issues.
+
+### Sprint 2
+
+#### Final Backlog
+
+![backlog_screenshot](./Assets/DashBoard-s2.png)
+
+### Sprint 2 Retrospective
+
+#### What went well?
+
+- Improved implementation of issues and pull requests, leading to better organization of user stories.
+
+#### What could have gone better?
+
+- Continued to face environment-specific issues on some developer's machines.
+- Low integration rate of the user stories selected in the product backlog.
+
+#### What are we going to do to improve?
+
+- Modify the shared files in Git to minimize potential issues.
+- Enhance the assessment of user story values during sprint planning.
+
+### Sprint 3
+
+#### Final Backlog
+
+![backlog_screenshot](./Assets/DashBoard-s3.png)
+
+### Sprint 3 Retrospective
+
+#### What went well?
+
+- Achieved a high season implementation value.
+- Resolved problems related to developing the app on various machines.
+
+#### What could have gone better?
+
+- There was a slight oversight in the use of pull requests on GitHub.
